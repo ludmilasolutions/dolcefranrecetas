@@ -57,29 +57,43 @@
             font-family: 'Dancing Script', cursive;
         }
         
-        /* ===== PANTALLA DE CONFIGURACIÓN ===== */
-        .config-container {
+        /* ===== LOGIN ===== */
+        .login-container {
             display: flex;
             justify-content: center;
             align-items: center;
             min-height: 100vh;
             padding: 20px;
             background: linear-gradient(135deg, var(--rosa-fondo) 0%, var(--lila-claro) 100%);
+            position: relative;
+            overflow: hidden;
         }
         
-        .config-card {
+        .login-container::before {
+            content: '';
+            position: absolute;
+            top: -50%;
+            right: -50%;
+            width: 100%;
+            height: 100%;
+            background: radial-gradient(circle, var(--rosa-claro) 0%, transparent 70%);
+            opacity: 0.3;
+        }
+        
+        .login-card {
             background: var(--blanco);
             border-radius: 24px;
             box-shadow: var(--sombra-intensa);
             width: 100%;
-            max-width: 500px;
-            padding: 40px;
+            max-width: 450px;
+            padding: 50px 40px;
             position: relative;
-            overflow: hidden;
+            z-index: 1;
             border: 2px solid var(--rosa-suave);
+            overflow: hidden;
         }
         
-        .config-card::before {
+        .login-card::before {
             content: '';
             position: absolute;
             top: 0;
@@ -89,60 +103,35 @@
             background: linear-gradient(90deg, var(--rosa-principal), var(--lila));
         }
         
-        .config-logo {
+        .login-logo {
+            font-size: 72px;
+            margin-bottom: 25px;
             text-align: center;
-            font-size: 64px;
-            margin-bottom: 20px;
             color: var(--rosa-principal);
-            filter: drop-shadow(0 4px 6px rgba(255, 102, 178, 0.3));
+            filter: drop-shadow(0 6px 8px rgba(255, 102, 178, 0.3));
+            animation: float 3s ease-in-out infinite;
         }
         
-        .config-title {
-            font-size: 32px;
-            margin-bottom: 10px;
+        @keyframes float {
+            0%, 100% { transform: translateY(0); }
+            50% { transform: translateY(-10px); }
+        }
+        
+        .login-title {
+            font-size: 42px;
+            margin-bottom: 15px;
             text-align: center;
             color: var(--rosa-oscuro);
             font-family: 'Dancing Script', cursive;
+            font-weight: 700;
         }
         
-        .config-subtitle {
+        .login-subtitle {
             color: var(--gris);
-            margin-bottom: 30px;
+            margin-bottom: 40px;
             text-align: center;
-            line-height: 1.5;
-        }
-        
-        /* ===== PASOS DE CONFIGURACIÓN ===== */
-        .config-step {
-            background: linear-gradient(135deg, var(--rosa-suave), var(--lila-claro));
-            padding: 20px;
-            border-radius: 16px;
-            margin-bottom: 25px;
-            border: 2px dashed var(--rosa-claro);
-            position: relative;
-        }
-        
-        .config-step h4 {
-            margin-top: 0;
-            color: var(--rosa-oscuro);
-            display: flex;
-            align-items: center;
-            gap: 10px;
-        }
-        
-        .config-step h4::before {
-            content: '📋';
-            font-size: 20px;
-        }
-        
-        .config-step ol {
-            margin-left: 25px;
-            margin-bottom: 0;
-        }
-        
-        .config-step li {
-            margin-bottom: 8px;
-            line-height: 1.5;
+            line-height: 1.6;
+            font-size: 16px;
         }
         
         /* ===== FORMULARIOS ===== */
@@ -267,62 +256,6 @@
             border-radius: 10px;
         }
         
-        /* ===== QR CONTAINER ===== */
-        .qr-container {
-            text-align: center;
-            margin: 30px 0;
-            padding: 25px;
-            background: linear-gradient(135deg, var(--crema), var(--blanco));
-            border-radius: 16px;
-            border: 2px solid var(--rosa-claro);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .qr-container::before {
-            content: '📱';
-            position: absolute;
-            top: -15px;
-            right: -15px;
-            font-size: 80px;
-            opacity: 0.1;
-            transform: rotate(15deg);
-        }
-        
-        .qr-placeholder {
-            width: 200px;
-            height: 200px;
-            background: linear-gradient(45deg, var(--rosa-principal) 25%, transparent 25%), 
-                        linear-gradient(-45deg, var(--rosa-principal) 25%, transparent 25%), 
-                        linear-gradient(45deg, transparent 75%, var(--rosa-principal) 75%), 
-                        linear-gradient(-45deg, transparent 75%, var(--rosa-principal) 75%);
-            background-size: 20px 20px;
-            background-position: 0 0, 0 10px, 10px -10px, -10px 0px;
-            margin: 0 auto 20px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            color: var(--blanco);
-            font-weight: bold;
-            font-size: 14px;
-            border-radius: 12px;
-            overflow: hidden;
-            position: relative;
-            box-shadow: 0 8px 20px rgba(255, 102, 178, 0.2);
-        }
-        
-        .qr-placeholder::before {
-            content: 'Dolcefran';
-            position: absolute;
-            top: 50%;
-            left: 50%;
-            transform: translate(-50%, -50%);
-            font-size: 24px;
-            font-weight: bold;
-            color: var(--rosa-oscuro);
-            text-shadow: 2px 2px 4px rgba(0,0,0,0.1);
-        }
-        
         /* ===== ALERTAS ===== */
         .alert {
             padding: 20px;
@@ -372,83 +305,6 @@
             background: linear-gradient(135deg, var(--rosa-suave), var(--rosa-claro));
             color: var(--rosa-oscuro);
             border-color: var(--rosa-principal);
-        }
-        
-        /* ===== LOGIN ===== */
-        .login-container {
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            min-height: 100vh;
-            padding: 20px;
-            background: linear-gradient(135deg, var(--rosa-fondo) 0%, var(--lila-claro) 100%);
-            position: relative;
-            overflow: hidden;
-        }
-        
-        .login-container::before {
-            content: '';
-            position: absolute;
-            top: -50%;
-            right: -50%;
-            width: 100%;
-            height: 100%;
-            background: radial-gradient(circle, var(--rosa-claro) 0%, transparent 70%);
-            opacity: 0.3;
-        }
-        
-        .login-card {
-            background: var(--blanco);
-            border-radius: 24px;
-            box-shadow: var(--sombra-intensa);
-            width: 100%;
-            max-width: 450px;
-            padding: 50px 40px;
-            position: relative;
-            z-index: 1;
-            border: 2px solid var(--rosa-suave);
-            overflow: hidden;
-        }
-        
-        .login-card::before {
-            content: '';
-            position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 6px;
-            background: linear-gradient(90deg, var(--rosa-principal), var(--lila));
-        }
-        
-        .login-logo {
-            font-size: 72px;
-            margin-bottom: 25px;
-            text-align: center;
-            color: var(--rosa-principal);
-            filter: drop-shadow(0 6px 8px rgba(255, 102, 178, 0.3));
-            animation: float 3s ease-in-out infinite;
-        }
-        
-        @keyframes float {
-            0%, 100% { transform: translateY(0); }
-            50% { transform: translateY(-10px); }
-        }
-        
-        .login-title {
-            font-size: 42px;
-            margin-bottom: 15px;
-            text-align: center;
-            color: var(--rosa-oscuro);
-            font-family: 'Dancing Script', cursive;
-            font-weight: 700;
-        }
-        
-        .login-subtitle {
-            color: var(--gris);
-            margin-bottom: 40px;
-            text-align: center;
-            line-height: 1.6;
-            font-size: 16px;
         }
         
         /* ===== APP PRINCIPAL ===== */
@@ -875,7 +731,7 @@
         
         /* Responsive */
         @media (max-width: 768px) {
-            .config-card, .login-card {
+            .login-card {
                 padding: 30px 25px;
             }
             
@@ -913,10 +769,6 @@
             
             .login-title {
                 font-size: 36px;
-            }
-            
-            .config-title {
-                font-size: 28px;
             }
         }
         
@@ -1052,78 +904,8 @@
     <!-- Botón para instalar como PWA -->
     <button id="installButton" title="Instalar aplicación">📱</button>
     
-    <!-- Pantalla 1: Configuración de Firebase (para celular) -->
-    <div id="configScreen" class="config-container">
-        <div class="config-card">
-            <div class="config-logo">⚙️</div>
-            <h1 class="config-title font-dancing">Pastelería Dolcefran</h1>
-            <p class="config-subtitle">Configuración inicial del sistema de gestión</p>
-            
-            <div id="configAlert" class="alert alert-rosa">
-                <strong>🎀 ¡Bienvenida!</strong> Configura la conexión con tu base de datos Firebase.
-            </div>
-            
-            <div class="config-step">
-                <h4>📋 Cómo obtener las credenciales:</h4>
-                <ol>
-                    <li>Abre <strong>Firebase Console</strong> en tu PC</li>
-                    <li>Ve a: <em>Configuración del proyecto → Tus aplicaciones</em></li>
-                    <li>Copia las credenciales de Firebase</li>
-                    <li>Pégalas aquí o comparte desde la PC</li>
-                </ol>
-            </div>
-            
-            <form id="configForm">
-                <div class="form-group">
-                    <label class="form-label" for="configApiKey">API Key</label>
-                    <input type="text" id="configApiKey" class="form-control" placeholder="AIzaSyD..." required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="configAuthDomain">Auth Domain</label>
-                    <input type="text" id="configAuthDomain" class="form-control" placeholder="dolcefran-pasteleria.firebaseapp.com" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="configProjectId">Project ID</label>
-                    <input type="text" id="configProjectId" class="form-control" placeholder="dolcefran-pasteleria" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="configStorageBucket">Storage Bucket</label>
-                    <input type="text" id="configStorageBucket" class="form-control" placeholder="dolcefran-pasteleria.appspot.com" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="configMessagingSenderId">Messaging Sender ID</label>
-                    <input type="text" id="configMessagingSenderId" class="form-control" placeholder="123456789012" required>
-                </div>
-                
-                <div class="form-group">
-                    <label class="form-label" for="configAppId">App ID</label>
-                    <input type="text" id="configAppId" class="form-control" placeholder="1:123456789012:web:abc123def456" required>
-                </div>
-                
-                <div class="form-group">
-                    <button type="submit" class="btn btn-primary">🔗 Conectar con Firebase</button>
-                </div>
-            </form>
-            
-            <div class="qr-container">
-                <h4>📱 Compartir desde la PC:</h4>
-                <div class="qr-placeholder"></div>
-                <p><small>En la PC, abre setup.html para generar un código QR con las credenciales</small></p>
-            </div>
-            
-            <div class="text-center mt-3">
-                <p><small>¿Ya ejecutaste setup.html en la PC? Solo necesitas estas credenciales.</small></p>
-                <button id="skipConfigBtn" class="btn btn-warning">↩️ Volver al Login</button>
-            </div>
-        </div>
-    </div>
-    
-    <!-- Pantalla 2: Login -->
-    <div id="loginScreen" class="login-container d-none">
+    <!-- Pantalla de Login -->
+    <div id="loginScreen" class="login-container">
         <div class="login-card">
             <div class="login-logo">🍰</div>
             <h1 class="login-title font-dancing">Pastelería Dolcefran</h1>
@@ -1149,7 +931,7 @@
             
             <div class="text-center mt-3">
                 <p><small>Credenciales por defecto: admin@dolcefran.com / admin123</small></p>
-                <p><small><a href="javascript:void(0)" id="reconfigureBtn" style="color: var(--rosa-principal); text-decoration: none;">🔧 Reconfigurar Firebase</a></small></p>
+                <p><small>💖 Sistema conectado a Firebase</small></p>
             </div>
         </div>
     </div>
@@ -1599,8 +1381,17 @@
     
     <!-- Script principal -->
     <script>
+        // ===== CONFIGURACIÓN DE FIREBASE =====
+        const firebaseConfig = {
+            apiKey: "AIzaSyCn-IxmpSh1PNg81zDCd8GUC7imM9XXAVA",
+            authDomain: "dolcefranrecetas.firebaseapp.com",
+            projectId: "dolcefranrecetas",
+            storageBucket: "dolcefranrecetas.firebasestorage.app",
+            messagingSenderId: "322101534324",
+            appId: "1:322101534324:web:e95dee5189edd3309ffb21"
+        };
+        
         // ===== VARIABLES GLOBALES =====
-        let firebaseConfig = null;
         let db = null;
         let auth = null;
         let currentUser = null;
@@ -1617,15 +1408,10 @@
         };
         
         // ===== ELEMENTOS DOM =====
-        const configScreen = document.getElementById('configScreen');
         const loginScreen = document.getElementById('loginScreen');
         const appScreen = document.getElementById('appScreen');
-        const configForm = document.getElementById('configForm');
         const loginForm = document.getElementById('loginForm');
-        const configAlert = document.getElementById('configAlert');
         const loginAlert = document.getElementById('loginAlert');
-        const skipConfigBtn = document.getElementById('skipConfigBtn');
-        const reconfigureBtn = document.getElementById('reconfigureBtn');
         const installButton = document.getElementById('installButton');
         
         // ===== INICIALIZACIÓN =====
@@ -1633,11 +1419,11 @@
             // Crear fondo decorativo de cupcakes
             createCupcakeBackground();
             
+            // Inicializar Firebase
+            initializeFirebase();
+            
             // Inicializar eventos
             initializeEventListeners();
-            
-            // Inicializar aplicación
-            initApp();
         });
         
         // ===== FUNCIONES DE INICIALIZACIÓN =====
@@ -1657,26 +1443,12 @@
         }
         
         function initializeEventListeners() {
-            // Configuración
-            configForm.addEventListener('submit', async (e) => {
-                e.preventDefault();
-                await configureFirebase();
-            });
-            
-            skipConfigBtn.addEventListener('click', () => {
-                showLoginScreen();
-            });
-            
             // Login
             loginForm.addEventListener('submit', async (e) => {
                 e.preventDefault();
                 const email = document.getElementById('loginEmail').value;
                 const password = document.getElementById('loginPassword').value;
                 await handleLogin(email, password);
-            });
-            
-            reconfigureBtn.addEventListener('click', () => {
-                showConfigScreen();
             });
             
             // App principal
@@ -1725,74 +1497,18 @@
         }
         
         // ===== MANEJO DE PANTALLAS =====
-        function showConfigScreen() {
-            configScreen.classList.remove('d-none');
-            loginScreen.classList.add('d-none');
-            appScreen.style.display = 'none';
-            hideConfigAlert();
-        }
-        
         function showLoginScreen() {
-            configScreen.classList.add('d-none');
             loginScreen.classList.remove('d-none');
             appScreen.style.display = 'none';
             hideLoginAlert();
         }
         
         function showAppScreen() {
-            configScreen.classList.add('d-none');
             loginScreen.classList.add('d-none');
             appScreen.style.display = 'flex';
         }
         
         // ===== CONFIGURACIÓN DE FIREBASE =====
-        async function initApp() {
-            // Verificar si ya tenemos configuración en localStorage
-            const savedConfig = getSavedConfig();
-            
-            if (savedConfig) {
-                firebaseConfig = savedConfig;
-                
-                // Intentar inicializar Firebase
-                if (await initializeFirebase()) {
-                    // Verificar si el sistema está configurado en Firestore
-                    isSystemConfigured = await checkSystemConfiguration();
-                    
-                    if (isSystemConfigured) {
-                        // Ir directamente al login
-                        showLoginScreen();
-                    } else {
-                        showConfigAlert('⚠️ Sistema no configurado', 'Ejecuta setup.html en una PC para configurar la base de datos.', 'warning');
-                        showConfigScreen();
-                    }
-                } else {
-                    showConfigScreen();
-                }
-            } else {
-                showConfigScreen();
-            }
-        }
-        
-        function getSavedConfig() {
-            try {
-                const config = localStorage.getItem('dolcefranFirebaseConfig');
-                return config ? JSON.parse(config) : null;
-            } catch (error) {
-                console.error('Error cargando configuración:', error);
-                return null;
-            }
-        }
-        
-        function saveConfig(config) {
-            try {
-                localStorage.setItem('dolcefranFirebaseConfig', JSON.stringify(config));
-                return true;
-            } catch (error) {
-                console.error('Error guardando configuración:', error);
-                return false;
-            }
-        }
-        
         async function initializeFirebase() {
             try {
                 // Si ya hay una app, eliminarla primero
@@ -1800,7 +1516,7 @@
                     await firebase.app().delete();
                 }
                 
-                // Inicializar Firebase
+                // Inicializar Firebase con las credenciales fijas
                 firebase.initializeApp(firebaseConfig);
                 
                 // Inicializar servicios
@@ -1815,10 +1531,18 @@
                 // Configurar listener de autenticación
                 auth.onAuthStateChanged(handleAuthStateChange);
                 
+                // Verificar si el sistema está configurado
+                isSystemConfigured = await checkSystemConfiguration();
+                
+                if (!isSystemConfigured) {
+                    showLoginAlert('⚠️ Sistema no configurado', 'warning');
+                    showLoginAlert('El sistema no está configurado. Ejecuta setup.html en una PC para configurar la base de datos.', 'warning');
+                }
+                
                 return true;
             } catch (error) {
                 console.error('Error inicializando Firebase:', error);
-                showConfigAlert('❌ Error de conexión', error.message, 'danger');
+                showLoginAlert('❌ Error de conexión a Firebase: ' + error.message, 'danger');
                 return false;
             }
         }
@@ -1829,59 +1553,6 @@
                 return configDoc.exists && configDoc.data().setupCompleted;
             } catch (error) {
                 console.error('Error verificando configuración:', error);
-                return false;
-            }
-        }
-        
-        async function configureFirebase() {
-            const config = {
-                apiKey: document.getElementById('configApiKey').value.trim(),
-                authDomain: document.getElementById('configAuthDomain').value.trim(),
-                projectId: document.getElementById('configProjectId').value.trim(),
-                storageBucket: document.getElementById('configStorageBucket').value.trim(),
-                messagingSenderId: document.getElementById('configMessagingSenderId').value.trim(),
-                appId: document.getElementById('configAppId').value.trim()
-            };
-            
-            // Validar
-            for (const key in config) {
-                if (!config[key]) {
-                    showConfigAlert('Campos incompletos', `Por favor, completa el campo: ${key}`, 'warning');
-                    return false;
-                }
-            }
-            
-            // Guardar configuración
-            if (!saveConfig(config)) {
-                showConfigAlert('Error', 'No se pudo guardar la configuración', 'danger');
-                return false;
-            }
-            
-            // Actualizar configuración global
-            firebaseConfig = config;
-            
-            // Inicializar Firebase
-            showConfigAlert('Conectando...', 'Estableciendo conexión con Firebase...', 'info');
-            
-            if (!await initializeFirebase()) {
-                return false;
-            }
-            
-            // Verificar configuración del sistema
-            showConfigAlert('Verificando...', 'Verificando configuración del sistema...', 'info');
-            
-            isSystemConfigured = await checkSystemConfiguration();
-            
-            if (isSystemConfigured) {
-                showConfigAlert('✅ Configuración exitosa', 'Sistema configurado correctamente. Redirigiendo al login...', 'success');
-                
-                setTimeout(() => {
-                    showLoginScreen();
-                }, 2000);
-                
-                return true;
-            } else {
-                showConfigAlert('⚠️ Sistema no configurado', 'Ejecuta setup.html en una PC para configurar la base de datos.', 'warning');
                 return false;
             }
         }
@@ -2444,16 +2115,6 @@
         }
         
         // ===== FUNCIONES AUXILIARES =====
-        function showConfigAlert(title, message, type = 'info') {
-            configAlert.innerHTML = `<strong>${title}:</strong> ${message}`;
-            configAlert.className = `alert alert-${type}`;
-            configAlert.classList.remove('d-none');
-        }
-        
-        function hideConfigAlert() {
-            configAlert.classList.add('d-none');
-        }
-        
         function showLoginAlert(message, type = 'danger') {
             loginAlert.textContent = message;
             loginAlert.className = `alert alert-${type}`;
