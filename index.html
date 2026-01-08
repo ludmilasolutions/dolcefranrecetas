@@ -1,0 +1,2079 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Pastelería Pro - Sistema de Gestión</title>
+    <style>
+        /* Estilos generales */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+        }
+        
+        :root {
+            --primary: #8B4513;
+            --primary-light: #D2691E;
+            --secondary: #F4A460;
+            --light: #FFF8DC;
+            --danger: #dc3545;
+            --warning: #ffc107;
+            --success: #28a745;
+            --info: #17a2b8;
+            --dark: #343a40;
+            --gray: #6c757d;
+            --light-gray: #f8f9fa;
+            --shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+        }
+        
+        body {
+            background-color: #f5f5f5;
+            color: #333;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+        }
+        
+        /* Estilos para PWA */
+        #installButton {
+            position: fixed;
+            bottom: 20px;
+            right: 20px;
+            z-index: 1000;
+            background: var(--primary);
+            color: white;
+            border: none;
+            border-radius: 50%;
+            width: 60px;
+            height: 60px;
+            font-size: 24px;
+            box-shadow: var(--shadow);
+            cursor: pointer;
+            display: none;
+        }
+        
+        /* Header */
+        .header {
+            background: linear-gradient(90deg, var(--primary) 0%, var(--primary-light) 100%);
+            color: white;
+            padding: 15px 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: var(--shadow);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+        
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .logo h1 {
+            font-size: 20px;
+            font-weight: 600;
+        }
+        
+        .user-info {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .user-avatar {
+            width: 40px;
+            height: 40px;
+            background-color: white;
+            color: var(--primary);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+        }
+        
+        /* Navegación */
+        .nav {
+            display: flex;
+            overflow-x: auto;
+            background-color: white;
+            border-bottom: 1px solid #eee;
+            position: sticky;
+            top: 70px;
+            z-index: 99;
+        }
+        
+        .nav-item {
+            padding: 15px 20px;
+            white-space: nowrap;
+            cursor: pointer;
+            border-bottom: 3px solid transparent;
+            transition: all 0.3s;
+            font-weight: 500;
+            color: var(--gray);
+        }
+        
+        .nav-item:hover {
+            background-color: var(--light-gray);
+        }
+        
+        .nav-item.active {
+            color: var(--primary);
+            border-bottom-color: var(--primary);
+            background-color: var(--light);
+        }
+        
+        /* Contenido principal */
+        .main-content {
+            flex: 1;
+            padding: 20px;
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+        }
+        
+        /* Secciones */
+        .section {
+            display: none;
+            animation: fadeIn 0.3s ease;
+        }
+        
+        .section.active {
+            display: block;
+        }
+        
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+        
+        /* Tarjetas */
+        .card {
+            background-color: white;
+            border-radius: 10px;
+            box-shadow: var(--shadow);
+            padding: 20px;
+            margin-bottom: 20px;
+        }
+        
+        .card-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            padding-bottom: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .card-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        /* Botones */
+        .btn {
+            padding: 10px 20px;
+            border-radius: 8px;
+            border: none;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s;
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-size: 14px;
+        }
+        
+        .btn-primary {
+            background-color: var(--primary);
+            color: white;
+        }
+        
+        .btn-primary:hover {
+            background-color: var(--primary-light);
+            transform: translateY(-2px);
+        }
+        
+        .btn-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .btn-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        .btn-warning {
+            background-color: var(--warning);
+            color: #212529;
+        }
+        
+        .btn-sm {
+            padding: 5px 10px;
+            font-size: 12px;
+        }
+        
+        /* Formularios */
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        .form-label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+            color: var(--dark);
+        }
+        
+        .form-control {
+            width: 100%;
+            padding: 12px 15px;
+            border: 1px solid #ddd;
+            border-radius: 8px;
+            font-size: 16px;
+            transition: border-color 0.3s;
+        }
+        
+        .form-control:focus {
+            border-color: var(--primary);
+            outline: none;
+            box-shadow: 0 0 0 3px rgba(139, 69, 19, 0.1);
+        }
+        
+        /* Grid */
+        .row {
+            display: flex;
+            flex-wrap: wrap;
+            margin: 0 -10px;
+        }
+        
+        .col {
+            flex: 1;
+            padding: 0 10px;
+            min-width: 300px;
+        }
+        
+        /* Tablas */
+        .table-container {
+            overflow-x: auto;
+        }
+        
+        .table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 10px;
+        }
+        
+        .table th {
+            background-color: var(--light);
+            color: var(--primary);
+            text-align: left;
+            padding: 15px;
+            font-weight: 600;
+            border-bottom: 2px solid #eee;
+        }
+        
+        .table td {
+            padding: 15px;
+            border-bottom: 1px solid #eee;
+        }
+        
+        .table tr:hover {
+            background-color: #f9f9f9;
+        }
+        
+        /* Estadísticas */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+        
+        .stat-card {
+            background-color: white;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: var(--shadow);
+            display: flex;
+            align-items: center;
+            gap: 15px;
+        }
+        
+        .stat-icon {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 24px;
+            color: white;
+        }
+        
+        .stat-content h3 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 5px;
+        }
+        
+        .stat-content p {
+            color: var(--gray);
+            font-size: 14px;
+        }
+        
+        /* Alertas */
+        .alert {
+            padding: 15px;
+            border-radius: 8px;
+            margin-bottom: 20px;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
+        }
+        
+        /* Badges */
+        .badge {
+            display: inline-block;
+            padding: 5px 10px;
+            border-radius: 20px;
+            font-size: 12px;
+            font-weight: 600;
+        }
+        
+        .badge-success {
+            background-color: var(--success);
+            color: white;
+        }
+        
+        .badge-warning {
+            background-color: var(--warning);
+            color: #212529;
+        }
+        
+        .badge-danger {
+            background-color: var(--danger);
+            color: white;
+        }
+        
+        /* Modal */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0, 0, 0, 0.5);
+            z-index: 1000;
+            align-items: center;
+            justify-content: center;
+            padding: 20px;
+        }
+        
+        .modal.active {
+            display: flex;
+        }
+        
+        .modal-content {
+            background-color: white;
+            border-radius: 10px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+            animation: modalFadeIn 0.3s ease;
+        }
+        
+        @keyframes modalFadeIn {
+            from { opacity: 0; transform: translateY(-20px); }
+            to { opacity: 1; transform: translateY(0); }
+        }
+        
+        .modal-header {
+            padding: 20px;
+            border-bottom: 1px solid #eee;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .modal-title {
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--primary);
+        }
+        
+        .modal-close {
+            background: none;
+            border: none;
+            font-size: 24px;
+            cursor: pointer;
+            color: var(--gray);
+        }
+        
+        .modal-body {
+            padding: 20px;
+        }
+        
+        .modal-footer {
+            padding: 20px;
+            border-top: 1px solid #eee;
+            display: flex;
+            justify-content: flex-end;
+            gap: 10px;
+        }
+        
+        /* Login */
+        .login-container {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
+        }
+        
+        .login-card {
+            background-color: white;
+            border-radius: 15px;
+            box-shadow: var(--shadow);
+            width: 100%;
+            max-width: 400px;
+            padding: 40px;
+            text-align: center;
+        }
+        
+        .login-logo {
+            font-size: 40px;
+            margin-bottom: 20px;
+            color: var(--primary);
+        }
+        
+        .login-title {
+            font-size: 24px;
+            margin-bottom: 10px;
+            color: var(--primary);
+        }
+        
+        .login-subtitle {
+            color: var(--gray);
+            margin-bottom: 30px;
+        }
+        
+        /* Stock bajo */
+        .low-stock {
+            background-color: #fff3cd !important;
+        }
+        
+        /* Responsive */
+        @media (max-width: 768px) {
+            .nav {
+                top: 60px;
+            }
+            
+            .header h1 {
+                font-size: 18px;
+            }
+            
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+            
+            .col {
+                min-width: 100%;
+            }
+        }
+        
+        /* Utilidades */
+        .text-center {
+            text-align: center;
+        }
+        
+        .text-right {
+            text-align: right;
+        }
+        
+        .mb-3 {
+            margin-bottom: 15px;
+        }
+        
+        .mt-3 {
+            margin-top: 15px;
+        }
+        
+        .d-none {
+            display: none !important;
+        }
+        
+        .d-flex {
+            display: flex !important;
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 40px;
+            color: var(--gray);
+        }
+        
+        .loading::after {
+            content: "";
+            display: inline-block;
+            width: 20px;
+            height: 20px;
+            border: 3px solid #f3f3f3;
+            border-top: 3px solid var(--primary);
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+            margin-left: 10px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
+</head>
+<body>
+    <!-- Botón para instalar como PWA -->
+    <button id="installButton" title="Instalar aplicación">📱</button>
+    
+    <!-- Pantalla de Login -->
+    <div id="loginScreen" class="login-container">
+        <div class="login-card">
+            <div class="login-logo">🍰</div>
+            <h1 class="login-title">Pastelería Pro</h1>
+            <p class="login-subtitle">Sistema de gestión de pastelería</p>
+            
+            <div id="loginAlert" class="alert alert-danger d-none"></div>
+            
+            <form id="loginForm">
+                <div class="form-group">
+                    <input type="email" id="loginEmail" class="form-control" placeholder="Correo electrónico" required>
+                </div>
+                
+                <div class="form-group">
+                    <input type="password" id="loginPassword" class="form-control" placeholder="Contraseña" required>
+                </div>
+                
+                <button type="submit" class="btn btn-primary" style="width: 100%;">
+                    🔑 Iniciar Sesión
+                </button>
+            </form>
+            
+            <div class="mt-3">
+                <p><small>Credenciales por defecto: admin@pasteleria.com / admin123</small></p>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Aplicación principal (oculta hasta login) -->
+    <div id="appScreen" class="d-none">
+        <!-- Header -->
+        <div class="header">
+            <div class="logo">
+                <h1>🍰 Pastelería Pro</h1>
+            </div>
+            
+            <div class="user-info">
+                <div class="user-avatar" id="userInitial">U</div>
+                <div>
+                    <div id="userName">Usuario</div>
+                    <button id="logoutBtn" class="btn btn-sm btn-danger">🚪 Salir</button>
+                </div>
+            </div>
+        </div>
+        
+        <!-- Navegación -->
+        <div class="nav">
+            <div class="nav-item active" data-section="dashboard">📊 Dashboard</div>
+            <div class="nav-item" data-section="ingredients">📦 Insumos</div>
+            <div class="nav-item" data-section="recipes">📒 Recetas</div>
+            <div class="nav-item" data-section="production">🏭 Producción</div>
+            <div class="nav-item" data-section="shopping">🛒 Compras</div>
+            <div class="nav-item" data-section="movements">📜 Movimientos</div>
+        </div>
+        
+        <!-- Contenido principal -->
+        <div class="main-content">
+            <!-- Dashboard -->
+            <section id="dashboard" class="section active">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Resumen del Sistema</h2>
+                        <button id="refreshDashboard" class="btn btn-primary">🔄 Actualizar</button>
+                    </div>
+                    
+                    <div class="stats-container">
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: var(--primary);">📦</div>
+                            <div class="stat-content">
+                                <h3 id="totalIngredients">0</h3>
+                                <p>Insumos Registrados</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: var(--warning);">⚠️</div>
+                            <div class="stat-content">
+                                <h3 id="lowStockCount">0</h3>
+                                <p>Insumos con Stock Bajo</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: var(--success);">📒</div>
+                            <div class="stat-content">
+                                <h3 id="totalRecipes">0</h3>
+                                <p>Recetas Registradas</p>
+                            </div>
+                        </div>
+                        
+                        <div class="stat-card">
+                            <div class="stat-icon" style="background-color: var(--info);">🏭</div>
+                            <div class="stat-content">
+                                <h3 id="totalProductions">0</h3>
+                                <p>Producciones Hoy</p>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <h3 class="mb-3">Insumos con Stock Bajo</h3>
+                    <div class="table-container">
+                        <table class="table" id="lowStockTable">
+                            <thead>
+                                <tr>
+                                    <th>Insumo</th>
+                                    <th>Stock Actual</th>
+                                    <th>Stock Mínimo</th>
+                                    <th>Estado</th>
+                                </tr>
+                            </thead>
+                            <tbody id="lowStockList">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Insumos -->
+            <section id="ingredients" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Gestión de Insumos</h2>
+                        <button id="addIngredientBtn" class="btn btn-primary">➕ Nuevo Insumo</button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Unidad</th>
+                                    <th>Stock Actual</th>
+                                    <th>Stock Mínimo</th>
+                                    <th>Costo Unitario</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="ingredientsList">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Recetas -->
+            <section id="recipes" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Gestión de Recetas</h2>
+                        <button id="addRecipeBtn" class="btn btn-primary">➕ Nueva Receta</button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Nombre</th>
+                                    <th>Descripción</th>
+                                    <th>Porciones</th>
+                                    <th>Costo Total</th>
+                                    <th>Costo por Porción</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="recipesList">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Producción -->
+            <section id="production" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Registro de Producción</h2>
+                        <button id="registerProductionBtn" class="btn btn-primary">🏭 Registrar Producción</button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Receta</th>
+                                    <th>Cantidad</th>
+                                    <th>Costo Total</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="productionsList">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Compras -->
+            <section id="shopping" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Lista de Compras</h2>
+                        <button id="refreshShoppingList" class="btn btn-primary">🔄 Actualizar</button>
+                    </div>
+                    
+                    <div class="alert alert-warning">
+                        <strong>⚠️ Atención:</strong> Esta lista se genera automáticamente con los insumos que tienen stock por debajo del mínimo.
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Insumo</th>
+                                    <th>Stock Actual</th>
+                                    <th>Stock Mínimo</th>
+                                    <th>Cantidad a Comprar</th>
+                                    <th>Costo Estimado</th>
+                                    <th>Acciones</th>
+                                </tr>
+                            </thead>
+                            <tbody id="shoppingList">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+            
+            <!-- Movimientos -->
+            <section id="movements" class="section">
+                <div class="card">
+                    <div class="card-header">
+                        <h2 class="card-title">Movimientos de Stock</h2>
+                        <div>
+                            <select id="movementFilter" class="form-control" style="width: auto; display: inline-block;">
+                                <option value="all">Todos los movimientos</option>
+                                <option value="ingreso">Ingresos</option>
+                                <option value="egreso">Egresos</option>
+                            </select>
+                            <button id="refreshMovements" class="btn btn-primary">🔄 Actualizar</button>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table class="table">
+                            <thead>
+                                <tr>
+                                    <th>Fecha</th>
+                                    <th>Insumo</th>
+                                    <th>Tipo</th>
+                                    <th>Cantidad</th>
+                                    <th>Motivo</th>
+                                </tr>
+                            </thead>
+                            <tbody id="movementsList">
+                                <!-- Datos cargados dinámicamente -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </section>
+        </div>
+    </div>
+    
+    <!-- Modal para Insumos -->
+    <div id="ingredientModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="ingredientModalTitle">Nuevo Insumo</h3>
+                <button class="modal-close" data-modal="ingredientModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="ingredientForm">
+                    <input type="hidden" id="ingredientId">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="ingredientName">Nombre del Insumo *</label>
+                        <input type="text" id="ingredientName" class="form-control" required>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label class="form-label" for="ingredientUnit">Unidad de Medida *</label>
+                                <select id="ingredientUnit" class="form-control" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="g">Gramos (g)</option>
+                                    <option value="kg">Kilogramos (kg)</option>
+                                    <option value="ml">Mililitros (ml)</option>
+                                    <option value="l">Litros (l)</option>
+                                    <option value="u">Unidades (u)</option>
+                                </select>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="form-group">
+                                <label class="form-label" for="ingredientCostUnit">Unidad de Costo *</label>
+                                <select id="ingredientCostUnit" class="form-control" required>
+                                    <option value="">Seleccionar</option>
+                                    <option value="g">Por gramo</option>
+                                    <option value="kg">Por kilogramo</option>
+                                    <option value="ml">Por mililitro</option>
+                                    <option value="l">Por litro</option>
+                                    <option value="u">Por unidad</option>
+                                </select>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="row">
+                        <div class="col">
+                            <div class="form-group">
+                                <label class="form-label" for="currentStock">Stock Actual *</label>
+                                <input type="number" id="currentStock" class="form-control" step="0.01" required>
+                            </div>
+                        </div>
+                        
+                        <div class="col">
+                            <div class="form-group">
+                                <label class="form-label" for="minStock">Stock Mínimo *</label>
+                                <input type="number" id="minStock" class="form-control" step="0.01" required>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="unitCost">Costo Unitario ($) *</label>
+                        <input type="number" id="unitCost" class="form-control" step="0.01" min="0" required>
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-modal="ingredientModal">Cancelar</button>
+                <button id="saveIngredientBtn" class="btn btn-primary">💾 Guardar Insumo</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Recetas -->
+    <div id="recipeModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title" id="recipeModalTitle">Nueva Receta</h3>
+                <button class="modal-close" data-modal="recipeModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="recipeForm">
+                    <input type="hidden" id="recipeId">
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="recipeName">Nombre de la Receta *</label>
+                        <input type="text" id="recipeName" class="form-control" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="recipeDescription">Descripción</label>
+                        <textarea id="recipeDescription" class="form-control" rows="3"></textarea>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="recipePortions">Número de Porciones *</label>
+                        <input type="number" id="recipePortions" class="form-control" min="1" required>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label">Ingredientes</label>
+                        <div id="recipeIngredientsContainer">
+                            <!-- Ingredientes se añadirán dinámicamente -->
+                        </div>
+                        <button type="button" id="addIngredientToRecipe" class="btn btn-sm btn-primary mt-2">➕ Añadir Ingrediente</button>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="recipeInstructions">Instrucciones</label>
+                        <textarea id="recipeInstructions" class="form-control" rows="4" placeholder="1. ..."></textarea>
+                    </div>
+                    
+                    <div class="alert alert-info">
+                        <strong>💡 Nota:</strong> El costo total y por porción se calcularán automáticamente al guardar.
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-modal="recipeModal">Cancelar</button>
+                <button id="saveRecipeBtn" class="btn btn-primary">💾 Guardar Receta</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Modal para Producción -->
+    <div id="productionModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3 class="modal-title">Registrar Producción</h3>
+                <button class="modal-close" data-modal="productionModal">&times;</button>
+            </div>
+            <div class="modal-body">
+                <form id="productionForm">
+                    <div class="form-group">
+                        <label class="form-label" for="productionRecipe">Receta *</label>
+                        <select id="productionRecipe" class="form-control" required>
+                            <option value="">Seleccionar receta</option>
+                            <!-- Opciones cargadas dinámicamente -->
+                        </select>
+                    </div>
+                    
+                    <div class="form-group">
+                        <label class="form-label" for="productionQuantity">Cantidad Producida *</label>
+                        <input type="number" id="productionQuantity" class="form-control" min="1" required>
+                        <small class="text-gray">Número de unidades/batches producidos</small>
+                    </div>
+                    
+                    <div id="productionInfo" class="alert alert-info d-none">
+                        <!-- Información de la receta seleccionada -->
+                    </div>
+                    
+                    <div id="productionValidation" class="alert alert-warning d-none">
+                        <!-- Validación de stock -->
+                    </div>
+                </form>
+            </div>
+            <div class="modal-footer">
+                <button class="btn" data-modal="productionModal">Cancelar</button>
+                <button id="saveProductionBtn" class="btn btn-primary">🏭 Registrar Producción</button>
+            </div>
+        </div>
+    </div>
+    
+    <!-- Script principal -->
+    <script>
+        // Configuración de Firebase desde localStorage
+        let firebaseConfig;
+        try {
+            const savedConfig = localStorage.getItem('pasteleriaProConfig');
+            if (!savedConfig) {
+                throw new Error("No se encontró configuración. Ejecuta setup.html primero.");
+            }
+            firebaseConfig = JSON.parse(savedConfig).firebaseConfig;
+        } catch (error) {
+            document.getElementById('loginAlert').textContent = "❌ Error: " + error.message;
+            document.getElementById('loginAlert').classList.remove('d-none');
+        }
+        
+        // Inicializar Firebase
+        let db, auth, currentUser;
+        
+        // Estado de la aplicación
+        const appState = {
+            ingredients: [],
+            recipes: [],
+            productions: [],
+            shoppingList: [],
+            movements: []
+        };
+        
+        // Elementos DOM
+        const loginScreen = document.getElementById('loginScreen');
+        const appScreen = document.getElementById('appScreen');
+        const loginForm = document.getElementById('loginForm');
+        const loginAlert = document.getElementById('loginAlert');
+        const logoutBtn = document.getElementById('logoutBtn');
+        const navItems = document.querySelectorAll('.nav-item');
+        const sections = document.querySelectorAll('.section');
+        const installButton = document.getElementById('installButton');
+        
+        // Inicializar la aplicación
+        async function initApp() {
+            try {
+                // Verificar si el sistema está configurado
+                if (!firebaseConfig) {
+                    throw new Error("Configuración no encontrada. Ejecuta setup.html primero.");
+                }
+                
+                // Inicializar Firebase
+                firebase.initializeApp(firebaseConfig);
+                db = firebase.firestore();
+                auth = firebase.auth();
+                
+                // Verificar autenticación
+                auth.onAuthStateChanged((user) => {
+                    if (user) {
+                        // Usuario autenticado
+                        currentUser = user;
+                        showApp();
+                        loadUserData();
+                        loadDashboardData();
+                    } else {
+                        // No autenticado
+                        showLogin();
+                    }
+                });
+                
+                // Configurar evento de instalación PWA
+                setupPWA();
+                
+            } catch (error) {
+                console.error("Error inicializando la app:", error);
+                loginAlert.textContent = "❌ Error: " + error.message;
+                loginAlert.classList.remove('d-none');
+            }
+        }
+        
+        // Mostrar pantalla de login
+        function showLogin() {
+            loginScreen.classList.remove('d-none');
+            appScreen.classList.add('d-none');
+        }
+        
+        // Mostrar aplicación principal
+        function showApp() {
+            loginScreen.classList.add('d-none');
+            appScreen.classList.remove('d-none');
+        }
+        
+        // Cargar datos del usuario
+        function loadUserData() {
+            document.getElementById('userInitial').textContent = currentUser.email.charAt(0).toUpperCase();
+            document.getElementById('userName').textContent = currentUser.email;
+        }
+        
+        // Navegación entre secciones
+        navItems.forEach(item => {
+            item.addEventListener('click', () => {
+                // Remover clase active de todos
+                navItems.forEach(nav => nav.classList.remove('active'));
+                sections.forEach(section => section.classList.remove('active'));
+                
+                // Activar el seleccionado
+                item.classList.add('active');
+                const sectionId = item.getAttribute('data-section');
+                document.getElementById(sectionId).classList.add('active');
+                
+                // Cargar datos específicos de la sección
+                switch(sectionId) {
+                    case 'dashboard':
+                        loadDashboardData();
+                        break;
+                    case 'ingredients':
+                        loadIngredients();
+                        break;
+                    case 'recipes':
+                        loadRecipes();
+                        break;
+                    case 'production':
+                        loadProductions();
+                        break;
+                    case 'shopping':
+                        loadShoppingList();
+                        break;
+                    case 'movements':
+                        loadMovements();
+                        break;
+                }
+            });
+        });
+        
+        // Cargar datos del dashboard
+        async function loadDashboardData() {
+            try {
+                // Cargar insumos
+                const ingredientsSnapshot = await db.collection('ingredients').get();
+                appState.ingredients = [];
+                ingredientsSnapshot.forEach(doc => {
+                    appState.ingredients.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Cargar recetas
+                const recipesSnapshot = await db.collection('recipes').get();
+                appState.recipes = [];
+                recipesSnapshot.forEach(doc => {
+                    appState.recipes.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Cargar producciones de hoy
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const productionsSnapshot = await db.collection('productions')
+                    .where('date', '>=', today)
+                    .get();
+                appState.productions = [];
+                productionsSnapshot.forEach(doc => {
+                    appState.productions.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Actualizar estadísticas
+                document.getElementById('totalIngredients').textContent = appState.ingredients.length;
+                document.getElementById('totalRecipes').textContent = appState.recipes.length;
+                document.getElementById('totalProductions').textContent = appState.productions.length;
+                
+                // Calcular insumos con stock bajo
+                const lowStockItems = appState.ingredients.filter(i => i.currentStock < i.minStock);
+                document.getElementById('lowStockCount').textContent = lowStockItems.length;
+                
+                // Mostrar lista de stock bajo
+                const lowStockList = document.getElementById('lowStockList');
+                lowStockList.innerHTML = '';
+                
+                lowStockItems.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.className = 'low-stock';
+                    row.innerHTML = `
+                        <td><strong>${item.name}</strong></td>
+                        <td>${item.currentStock} ${item.unit}</td>
+                        <td>${item.minStock} ${item.unit}</td>
+                        <td><span class="badge badge-danger">STOCK BAJO</span></td>
+                    `;
+                    lowStockList.appendChild(row);
+                });
+                
+            } catch (error) {
+                console.error("Error cargando datos del dashboard:", error);
+                showAlert('Error cargando datos del dashboard', 'danger');
+            }
+        }
+        
+        // Cargar insumos
+        async function loadIngredients() {
+            try {
+                const ingredientsList = document.getElementById('ingredientsList');
+                ingredientsList.innerHTML = '<tr><td colspan="6" class="loading">Cargando insumos...</td></tr>';
+                
+                const snapshot = await db.collection('ingredients').orderBy('name').get();
+                appState.ingredients = [];
+                ingredientsList.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const ingredient = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    appState.ingredients.push(ingredient);
+                    
+                    const row = document.createElement('tr');
+                    if (ingredient.currentStock < ingredient.minStock) {
+                        row.className = 'low-stock';
+                    }
+                    
+                    row.innerHTML = `
+                        <td>${ingredient.name}</td>
+                        <td>${ingredient.unit}</td>
+                        <td>${ingredient.currentStock} ${ingredient.unit}</td>
+                        <td>${ingredient.minStock} ${ingredient.unit}</td>
+                        <td>$${ingredient.unitCost.toFixed(2)}/${ingredient.costUnit}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="editIngredient('${ingredient.id}')">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteIngredient('${ingredient.id}')">🗑️</button>
+                        </td>
+                    `;
+                    
+                    ingredientsList.appendChild(row);
+                });
+                
+                if (snapshot.empty) {
+                    ingredientsList.innerHTML = '<tr><td colspan="6" class="text-center">No hay insumos registrados</td></tr>';
+                }
+                
+            } catch (error) {
+                console.error("Error cargando insumos:", error);
+                showAlert('Error cargando insumos', 'danger');
+            }
+        }
+        
+        // Cargar recetas
+        async function loadRecipes() {
+            try {
+                const recipesList = document.getElementById('recipesList');
+                recipesList.innerHTML = '<tr><td colspan="6" class="loading">Cargando recetas...</td></tr>';
+                
+                const snapshot = await db.collection('recipes').orderBy('name').get();
+                appState.recipes = [];
+                recipesList.innerHTML = '';
+                
+                for (const doc of snapshot.docs) {
+                    const recipe = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    
+                    // Calcular costo total de la receta
+                    let totalCost = 0;
+                    if (recipe.ingredients && recipe.ingredients.length > 0) {
+                        for (const item of recipe.ingredients) {
+                            const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
+                            if (ingredient) {
+                                // Convertir cantidad a la unidad de costo
+                                let convertedQuantity = item.quantity;
+                                if (item.unit !== ingredient.costUnit) {
+                                    // Conversiones básicas (simplificadas)
+                                    if (item.unit === 'g' && ingredient.costUnit === 'kg') {
+                                        convertedQuantity = item.quantity / 1000;
+                                    } else if (item.unit === 'kg' && ingredient.costUnit === 'g') {
+                                        convertedQuantity = item.quantity * 1000;
+                                    } else if (item.unit === 'ml' && ingredient.costUnit === 'l') {
+                                        convertedQuantity = item.quantity / 1000;
+                                    } else if (item.unit === 'l' && ingredient.costUnit === 'ml') {
+                                        convertedQuantity = item.quantity * 1000;
+                                    }
+                                }
+                                
+                                totalCost += convertedQuantity * ingredient.unitCost;
+                            }
+                        }
+                    }
+                    
+                    const costPerPortion = recipe.portions > 0 ? totalCost / recipe.portions : 0;
+                    
+                    recipe.totalCost = totalCost;
+                    recipe.costPerPortion = costPerPortion;
+                    appState.recipes.push(recipe);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${recipe.name}</strong></td>
+                        <td>${recipe.description || 'Sin descripción'}</td>
+                        <td>${recipe.portions}</td>
+                        <td>$${totalCost.toFixed(2)}</td>
+                        <td>$${costPerPortion.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-primary" onclick="viewRecipe('${recipe.id}')">👁️</button>
+                            <button class="btn btn-sm btn-warning" onclick="editRecipe('${recipe.id}')">✏️</button>
+                            <button class="btn btn-sm btn-danger" onclick="deleteRecipe('${recipe.id}')">🗑️</button>
+                        </td>
+                    `;
+                    
+                    recipesList.appendChild(row);
+                }
+                
+                if (snapshot.empty) {
+                    recipesList.innerHTML = '<tr><td colspan="6" class="text-center">No hay recetas registradas</td></tr>';
+                }
+                
+            } catch (error) {
+                console.error("Error cargando recetas:", error);
+                showAlert('Error cargando recetas', 'danger');
+            }
+        }
+        
+        // Cargar producciones
+        async function loadProductions() {
+            try {
+                const productionsList = document.getElementById('productionsList');
+                productionsList.innerHTML = '<tr><td colspan="5" class="loading">Cargando producciones...</td></tr>';
+                
+                const snapshot = await db.collection('productions')
+                    .orderBy('date', 'desc')
+                    .limit(50)
+                    .get();
+                
+                productionsList.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const production = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    
+                    const date = production.date.toDate();
+                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formattedDate}</td>
+                        <td>${production.recipeName}</td>
+                        <td>${production.quantity}</td>
+                        <td>$${production.totalCost ? production.totalCost.toFixed(2) : '0.00'}</td>
+                        <td>
+                            <button class="btn btn-sm btn-danger" onclick="deleteProduction('${production.id}')">🗑️</button>
+                        </td>
+                    `;
+                    
+                    productionsList.appendChild(row);
+                });
+                
+                if (snapshot.empty) {
+                    productionsList.innerHTML = '<tr><td colspan="5" class="text-center">No hay producciones registradas</td></tr>';
+                }
+                
+            } catch (error) {
+                console.error("Error cargando producciones:", error);
+                showAlert('Error cargando producciones', 'danger');
+            }
+        }
+        
+        // Cargar lista de compras
+        async function loadShoppingList() {
+            try {
+                const shoppingListEl = document.getElementById('shoppingList');
+                shoppingListEl.innerHTML = '<tr><td colspan="6" class="loading">Generando lista de compras...</td></tr>';
+                
+                // Obtener insumos con stock bajo
+                const lowStockItems = appState.ingredients.filter(i => i.currentStock < i.minStock);
+                shoppingListEl.innerHTML = '';
+                
+                lowStockItems.forEach(item => {
+                    const quantityToBuy = item.minStock - item.currentStock;
+                    const estimatedCost = quantityToBuy * item.unitCost;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${item.name}</strong></td>
+                        <td>${item.currentStock} ${item.unit}</td>
+                        <td>${item.minStock} ${item.unit}</td>
+                        <td>${quantityToBuy.toFixed(2)} ${item.unit}</td>
+                        <td>$${estimatedCost.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-sm btn-success" onclick="markAsPurchased('${item.id}', ${quantityToBuy})">✅ Comprar</button>
+                        </td>
+                    `;
+                    
+                    shoppingListEl.appendChild(row);
+                });
+                
+                if (lowStockItems.length === 0) {
+                    shoppingListEl.innerHTML = '<tr><td colspan="6" class="text-center">🎉 ¡Todo el stock está en niveles adecuados!</td></tr>';
+                }
+                
+            } catch (error) {
+                console.error("Error cargando lista de compras:", error);
+                showAlert('Error cargando lista de compras', 'danger');
+            }
+        }
+        
+        // Cargar movimientos de stock
+        async function loadMovements() {
+            try {
+                const movementsList = document.getElementById('movementsList');
+                movementsList.innerHTML = '<tr><td colspan="5" class="loading">Cargando movimientos...</td></tr>';
+                
+                const filter = document.getElementById('movementFilter').value;
+                let query = db.collection('stockMovements').orderBy('date', 'desc').limit(100);
+                
+                if (filter !== 'all') {
+                    query = query.where('type', '==', filter);
+                }
+                
+                const snapshot = await query.get();
+                movementsList.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const movement = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    
+                    const date = movement.date.toDate();
+                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5);
+                    
+                    const typeBadge = movement.type === 'ingreso' 
+                        ? '<span class="badge badge-success">INGRESO</span>'
+                        : '<span class="badge badge-danger">EGRESO</span>';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formattedDate}</td>
+                        <td>${movement.ingredientName}</td>
+                        <td>${typeBadge}</td>
+                        <td>${movement.quantity} ${movement.unit}</td>
+                        <td>${movement.reason}</td>
+                    `;
+                    
+                    movementsList.appendChild(row);
+                });
+                
+                if (snapshot.empty) {
+                    movementsList.innerHTML = '<tr><td colspan="5" class="text-center">No hay movimientos registrados</td></tr>';
+                }
+                
+            } catch (error) {
+                console.error("Error cargando movimientos:", error);
+                showAlert('Error cargando movimientos', 'danger');
+            }
+        }
+        
+        // Funciones para gestionar insumos
+        function openIngredientModal(ingredientId = null) {
+            const modal = document.getElementById('ingredientModal');
+            const form = document.getElementById('ingredientForm');
+            const title = document.getElementById('ingredientModalTitle');
+            
+            form.reset();
+            document.getElementById('ingredientId').value = '';
+            
+            if (ingredientId) {
+                // Modo edición
+                const ingredient = appState.ingredients.find(i => i.id === ingredientId);
+                if (ingredient) {
+                    title.textContent = 'Editar Insumo';
+                    document.getElementById('ingredientId').value = ingredient.id;
+                    document.getElementById('ingredientName').value = ingredient.name;
+                    document.getElementById('ingredientUnit').value = ingredient.unit;
+                    document.getElementById('ingredientCostUnit').value = ingredient.costUnit;
+                    document.getElementById('currentStock').value = ingredient.currentStock;
+                    document.getElementById('minStock').value = ingredient.minStock;
+                    document.getElementById('unitCost').value = ingredient.unitCost;
+                }
+            } else {
+                title.textContent = 'Nuevo Insumo';
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        async function saveIngredient() {
+            try {
+                const form = document.getElementById('ingredientForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                const ingredientData = {
+                    name: document.getElementById('ingredientName').value,
+                    unit: document.getElementById('ingredientUnit').value,
+                    costUnit: document.getElementById('ingredientCostUnit').value,
+                    currentStock: parseFloat(document.getElementById('currentStock').value),
+                    minStock: parseFloat(document.getElementById('minStock').value),
+                    unitCost: parseFloat(document.getElementById('unitCost').value),
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const ingredientId = document.getElementById('ingredientId').value;
+                
+                if (ingredientId) {
+                    // Actualizar insumo existente
+                    await db.collection('ingredients').doc(ingredientId).update(ingredientData);
+                    showAlert('Insumo actualizado correctamente', 'success');
+                } else {
+                    // Crear nuevo insumo
+                    ingredientData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('ingredients').add(ingredientData);
+                    showAlert('Insumo creado correctamente', 'success');
+                }
+                
+                // Cerrar modal y recargar datos
+                closeModal('ingredientModal');
+                loadIngredients();
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error("Error guardando insumo:", error);
+                showAlert('Error guardando insumo', 'danger');
+            }
+        }
+        
+        async function deleteIngredient(ingredientId) {
+            if (!confirm('¿Estás seguro de eliminar este insumo?')) return;
+            
+            try {
+                await db.collection('ingredients').doc(ingredientId).delete();
+                showAlert('Insumo eliminado correctamente', 'success');
+                loadIngredients();
+                loadDashboardData();
+            } catch (error) {
+                console.error("Error eliminando insumo:", error);
+                showAlert('Error eliminando insumo', 'danger');
+            }
+        }
+        
+        // Funciones para gestionar recetas
+        function openRecipeModal(recipeId = null) {
+            const modal = document.getElementById('recipeModal');
+            const form = document.getElementById('recipeForm');
+            const title = document.getElementById('recipeModalTitle');
+            const ingredientsContainer = document.getElementById('recipeIngredientsContainer');
+            
+            form.reset();
+            document.getElementById('recipeId').value = '';
+            ingredientsContainer.innerHTML = '';
+            
+            if (recipeId) {
+                // Modo edición
+                const recipe = appState.recipes.find(r => r.id === recipeId);
+                if (recipe) {
+                    title.textContent = 'Editar Receta';
+                    document.getElementById('recipeId').value = recipe.id;
+                    document.getElementById('recipeName').value = recipe.name;
+                    document.getElementById('recipeDescription').value = recipe.description || '';
+                    document.getElementById('recipePortions').value = recipe.portions;
+                    document.getElementById('recipeInstructions').value = recipe.instructions || '';
+                    
+                    // Cargar ingredientes
+                    if (recipe.ingredients && recipe.ingredients.length > 0) {
+                        recipe.ingredients.forEach((ingredient, index) => {
+                            addIngredientRow(ingredient, index);
+                        });
+                    }
+                }
+            } else {
+                title.textContent = 'Nueva Receta';
+                addIngredientRow(); // Añadir una fila vacía
+            }
+            
+            modal.classList.add('active');
+        }
+        
+        function addIngredientRow(ingredient = null, index = null) {
+            const container = document.getElementById('recipeIngredientsContainer');
+            const rowIndex = index !== null ? index : container.children.length;
+            
+            const row = document.createElement('div');
+            row.className = 'ingredient-row mb-2';
+            row.innerHTML = `
+                <div class="row">
+                    <div class="col">
+                        <select class="form-control ingredient-select" data-index="${rowIndex}" required>
+                            <option value="">Seleccionar insumo</option>
+                            ${appState.ingredients.map(i => 
+                                `<option value="${i.id}" data-unit="${i.unit}" ${ingredient && ingredient.ingredientId === i.id ? 'selected' : ''}>
+                                    ${i.name} (${i.unit})
+                                </option>`
+                            ).join('')}
+                        </select>
+                    </div>
+                    <div class="col">
+                        <div class="input-group">
+                            <input type="number" class="form-control ingredient-quantity" data-index="${rowIndex}" 
+                                   step="0.01" min="0.01" placeholder="Cantidad" 
+                                   value="${ingredient ? ingredient.quantity : ''}" required>
+                            <span class="input-group-text ingredient-unit" data-index="${rowIndex}">
+                                ${ingredient ? ingredient.unit : '--'}
+                            </span>
+                        </div>
+                    </div>
+                    <div class="col-auto">
+                        <button type="button" class="btn btn-sm btn-danger" onclick="removeIngredientRow(this)">🗑️</button>
+                    </div>
+                </div>
+            `;
+            
+            container.appendChild(row);
+            
+            // Configurar evento para actualizar unidad cuando se selecciona un insumo
+            const select = row.querySelector('.ingredient-select');
+            select.addEventListener('change', function() {
+                const selectedOption = this.options[this.selectedIndex];
+                const unit = selectedOption.getAttribute('data-unit') || '--';
+                row.querySelector('.ingredient-unit').textContent = unit;
+            });
+            
+            // Si hay un ingrediente predefinido, activar el evento change
+            if (ingredient && ingredient.ingredientId) {
+                select.dispatchEvent(new Event('change'));
+            }
+        }
+        
+        function removeIngredientRow(button) {
+            const row = button.closest('.ingredient-row');
+            row.remove();
+        }
+        
+        async function saveRecipe() {
+            try {
+                const form = document.getElementById('recipeForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                // Recopilar ingredientes
+                const ingredients = [];
+                const ingredientRows = document.querySelectorAll('.ingredient-row');
+                
+                for (const row of ingredientRows) {
+                    const select = row.querySelector('.ingredient-select');
+                    const quantityInput = row.querySelector('.ingredient-quantity');
+                    const unitSpan = row.querySelector('.ingredient-unit');
+                    
+                    if (select.value && quantityInput.value) {
+                        const ingredient = appState.ingredients.find(i => i.id === select.value);
+                        if (ingredient) {
+                            ingredients.push({
+                                ingredientId: select.value,
+                                name: ingredient.name,
+                                quantity: parseFloat(quantityInput.value),
+                                unit: unitSpan.textContent
+                            });
+                        }
+                    }
+                }
+                
+                if (ingredients.length === 0) {
+                    showAlert('Debe agregar al menos un ingrediente', 'warning');
+                    return;
+                }
+                
+                const recipeData = {
+                    name: document.getElementById('recipeName').value,
+                    description: document.getElementById('recipeDescription').value,
+                    portions: parseInt(document.getElementById('recipePortions').value),
+                    ingredients: ingredients,
+                    instructions: document.getElementById('recipeInstructions').value,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const recipeId = document.getElementById('recipeId').value;
+                
+                if (recipeId) {
+                    // Actualizar receta existente
+                    await db.collection('recipes').doc(recipeId).update(recipeData);
+                    showAlert('Receta actualizada correctamente', 'success');
+                } else {
+                    // Crear nueva receta
+                    recipeData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('recipes').add(recipeData);
+                    showAlert('Receta creada correctamente', 'success');
+                }
+                
+                // Cerrar modal y recargar datos
+                closeModal('recipeModal');
+                loadRecipes();
+                
+            } catch (error) {
+                console.error("Error guardando receta:", error);
+                showAlert('Error guardando receta', 'danger');
+            }
+        }
+        
+        async function deleteRecipe(recipeId) {
+            if (!confirm('¿Estás seguro de eliminar esta receta?')) return;
+            
+            try {
+                await db.collection('recipes').doc(recipeId).delete();
+                showAlert('Receta eliminada correctamente', 'success');
+                loadRecipes();
+            } catch (error) {
+                console.error("Error eliminando receta:", error);
+                showAlert('Error eliminando receta', 'danger');
+            }
+        }
+        
+        function viewRecipe(recipeId) {
+            const recipe = appState.recipes.find(r => r.id === recipeId);
+            if (!recipe) return;
+            
+            let ingredientsText = '';
+            if (recipe.ingredients && recipe.ingredients.length > 0) {
+                ingredientsText = recipe.ingredients.map(i => 
+                    `• ${i.name}: ${i.quantity} ${i.unit}`
+                ).join('\n');
+            }
+            
+            alert(`📋 ${recipe.name}\n\n📝 Descripción: ${recipe.description || 'Sin descripción'}\n🍽️ Porciones: ${recipe.portions}\n\n🛒 Ingredientes:\n${ingredientsText}\n\n💰 Costo total: $${recipe.totalCost ? recipe.totalCost.toFixed(2) : '0.00'}\n💰 Costo por porción: $${recipe.costPerPortion ? recipe.costPerPortion.toFixed(2) : '0.00'}`);
+        }
+        
+        // Funciones para producción
+        async function openProductionModal() {
+            const modal = document.getElementById('productionModal');
+            const recipeSelect = document.getElementById('productionRecipe');
+            
+            // Limpiar y cargar recetas
+            recipeSelect.innerHTML = '<option value="">Seleccionar receta</option>';
+            appState.recipes.forEach(recipe => {
+                const option = document.createElement('option');
+                option.value = recipe.id;
+                option.textContent = recipe.name;
+                recipeSelect.appendChild(option);
+            });
+            
+            // Limpiar formulario
+            document.getElementById('productionForm').reset();
+            document.getElementById('productionInfo').classList.add('d-none');
+            document.getElementById('productionValidation').classList.add('d-none');
+            
+            modal.classList.add('active');
+        }
+        
+        async function validateProductionStock() {
+            const recipeId = document.getElementById('productionRecipe').value;
+            const quantity = parseInt(document.getElementById('productionQuantity').value);
+            
+            if (!recipeId || !quantity) return;
+            
+            const recipe = appState.recipes.find(r => r.id === recipeId);
+            if (!recipe) return;
+            
+            const validationEl = document.getElementById('productionValidation');
+            validationEl.innerHTML = '';
+            validationEl.classList.add('d-none');
+            
+            let hasStock = true;
+            let validationHTML = '<strong>Validación de stock:</strong><br>';
+            
+            // Verificar stock para cada ingrediente
+            for (const item of recipe.ingredients) {
+                const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
+                if (ingredient) {
+                    const requiredQuantity = item.quantity * quantity;
+                    if (ingredient.currentStock < requiredQuantity) {
+                        hasStock = false;
+                        validationHTML += `❌ ${item.name}: Stock insuficiente (necesitas ${requiredQuantity} ${item.unit}, tienes ${ingredient.currentStock} ${ingredient.unit})<br>`;
+                    } else {
+                        validationHTML += `✅ ${item.name}: Stock suficiente (necesitas ${requiredQuantity} ${item.unit}, tienes ${ingredient.currentStock} ${ingredient.unit})<br>`;
+                    }
+                }
+            }
+            
+            if (!hasStock) {
+                validationHTML += '<br><strong>⚠️ No hay suficiente stock para producir</strong>';
+            }
+            
+            validationEl.innerHTML = validationHTML;
+            validationEl.classList.remove('d-none');
+            
+            return hasStock;
+        }
+        
+        async function saveProduction() {
+            try {
+                const form = document.getElementById('productionForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                const recipeId = document.getElementById('productionRecipe').value;
+                const quantity = parseInt(document.getElementById('productionQuantity').value);
+                
+                const recipe = appState.recipes.find(r => r.id === recipeId);
+                if (!recipe) {
+                    showAlert('Receta no encontrada', 'danger');
+                    return;
+                }
+                
+                // Validar stock antes de proceder
+                const hasStock = await validateProductionStock();
+                if (!hasStock) {
+                    showAlert('No hay suficiente stock para producir', 'warning');
+                    return;
+                }
+                
+                // Calcular costo total
+                let totalCost = 0;
+                for (const item of recipe.ingredients) {
+                    const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
+                    if (ingredient) {
+                        // Conversión de unidades (simplificada)
+                        let convertedQuantity = item.quantity * quantity;
+                        if (item.unit !== ingredient.costUnit) {
+                            if (item.unit === 'g' && ingredient.costUnit === 'kg') {
+                                convertedQuantity = (item.quantity * quantity) / 1000;
+                            } else if (item.unit === 'kg' && ingredient.costUnit === 'g') {
+                                convertedQuantity = (item.quantity * quantity) * 1000;
+                            }
+                        }
+                        totalCost += convertedQuantity * ingredient.unitCost;
+                    }
+                }
+                
+                // Registrar producción
+                const productionData = {
+                    recipeId: recipeId,
+                    recipeName: recipe.name,
+                    quantity: quantity,
+                    totalCost: totalCost,
+                    date: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid,
+                    userName: currentUser.email
+                };
+                
+                await db.collection('productions').add(productionData);
+                
+                // Actualizar stock y registrar movimientos
+                for (const item of recipe.ingredients) {
+                    const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
+                    if (ingredient) {
+                        const usedQuantity = item.quantity * quantity;
+                        
+                        // Actualizar stock del insumo
+                        const newStock = ingredient.currentStock - usedQuantity;
+                        await db.collection('ingredients').doc(ingredient.id).update({
+                            currentStock: newStock
+                        });
+                        
+                        // Registrar movimiento de stock
+                        await db.collection('stockMovements').add({
+                            ingredientId: ingredient.id,
+                            ingredientName: ingredient.name,
+                            type: 'egreso',
+                            quantity: usedQuantity,
+                            unit: item.unit,
+                            reason: `Producción: ${recipe.name} (${quantity} unidades)`,
+                            date: firebase.firestore.FieldValue.serverTimestamp(),
+                            userId: currentUser.uid
+                        });
+                    }
+                }
+                
+                showAlert('Producción registrada correctamente', 'success');
+                closeModal('productionModal');
+                loadProductions();
+                loadIngredients();
+                loadDashboardData();
+                loadMovements();
+                
+            } catch (error) {
+                console.error("Error registrando producción:", error);
+                showAlert('Error registrando producción', 'danger');
+            }
+        }
+        
+        async function deleteProduction(productionId) {
+            if (!confirm('¿Estás seguro de eliminar este registro de producción?')) return;
+            
+            try {
+                await db.collection('productions').doc(productionId).delete();
+                showAlert('Producción eliminada correctamente', 'success');
+                loadProductions();
+            } catch (error) {
+                console.error("Error eliminando producción:", error);
+                showAlert('Error eliminando producción', 'danger');
+            }
+        }
+        
+        // Funciones para lista de compras
+        async function markAsPurchased(ingredientId, quantity) {
+            try {
+                const ingredient = appState.ingredients.find(i => i.id === ingredientId);
+                if (!ingredient) return;
+                
+                const purchaseQuantity = parseFloat(prompt(`Ingresa la cantidad comprada de ${ingredient.name}:`, quantity));
+                
+                if (isNaN(purchaseQuantity) || purchaseQuantity <= 0) {
+                    showAlert('Cantidad inválida', 'warning');
+                    return;
+                }
+                
+                // Actualizar stock
+                const newStock = ingredient.currentStock + purchaseQuantity;
+                await db.collection('ingredients').doc(ingredientId).update({
+                    currentStock: newStock
+                });
+                
+                // Registrar movimiento de stock
+                await db.collection('stockMovements').add({
+                    ingredientId: ingredientId,
+                    ingredientName: ingredient.name,
+                    type: 'ingreso',
+                    quantity: purchaseQuantity,
+                    unit: ingredient.unit,
+                    reason: 'Compra',
+                    date: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                });
+                
+                showAlert('Compra registrada correctamente', 'success');
+                loadShoppingList();
+                loadIngredients();
+                loadDashboardData();
+                loadMovements();
+                
+            } catch (error) {
+                console.error("Error registrando compra:", error);
+                showAlert('Error registrando compra', 'danger');
+            }
+        }
+        
+        // Funciones auxiliares
+        function showAlert(message, type = 'info') {
+            // Crear alerta temporal
+            const alert = document.createElement('div');
+            alert.className = `alert alert-${type}`;
+            alert.innerHTML = `
+                <span>${message}</span>
+                <button class="btn btn-sm" onclick="this.parentElement.remove()" style="margin-left: auto;">&times;</button>
+            `;
+            
+            // Insertar al inicio del contenido principal
+            const mainContent = document.querySelector('.main-content');
+            mainContent.insertBefore(alert, mainContent.firstChild);
+            
+            // Auto-eliminar después de 5 segundos
+            setTimeout(() => {
+                if (alert.parentElement) {
+                    alert.remove();
+                }
+            }, 5000);
+        }
+        
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('active');
+        }
+        
+        function setupPWA() {
+            let deferredPrompt;
+            
+            window.addEventListener('beforeinstallprompt', (e) => {
+                e.preventDefault();
+                deferredPrompt = e;
+                installButton.style.display = 'block';
+            });
+            
+            installButton.addEventListener('click', async () => {
+                if (!deferredPrompt) return;
+                
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                
+                if (outcome === 'accepted') {
+                    installButton.style.display = 'none';
+                }
+                
+                deferredPrompt = null;
+            });
+            
+            window.addEventListener('appinstalled', () => {
+                installButton.style.display = 'none';
+            });
+        }
+        
+        // Configurar eventos
+        document.addEventListener('DOMContentLoaded', () => {
+            // Login
+            loginForm.addEventListener('submit', async (e) => {
+                e.preventDefault();
+                
+                const email = document.getElementById('loginEmail').value;
+                const password = document.getElementById('loginPassword').value;
+                
+                try {
+                    await auth.signInWithEmailAndPassword(email, password);
+                    loginAlert.classList.add('d-none');
+                } catch (error) {
+                    loginAlert.textContent = '❌ Error: ' + error.message;
+                    loginAlert.classList.remove('d-none');
+                }
+            });
+            
+            // Logout
+            logoutBtn.addEventListener('click', () => {
+                auth.signOut();
+            });
+            
+            // Botones del dashboard
+            document.getElementById('refreshDashboard').addEventListener('click', loadDashboardData);
+            
+            // Botones de insumos
+            document.getElementById('addIngredientBtn').addEventListener('click', () => openIngredientModal());
+            document.getElementById('saveIngredientBtn').addEventListener('click', saveIngredient);
+            
+            // Botones de recetas
+            document.getElementById('addRecipeBtn').addEventListener('click', () => openRecipeModal());
+            document.getElementById('addIngredientToRecipe').addEventListener('click', () => addIngredientRow());
+            document.getElementById('saveRecipeBtn').addEventListener('click', saveRecipe);
+            
+            // Botones de producción
+            document.getElementById('registerProductionBtn').addEventListener('click', openProductionModal);
+            document.getElementById('productionRecipe').addEventListener('change', validateProductionStock);
+            document.getElementById('productionQuantity').addEventListener('input', validateProductionStock);
+            document.getElementById('saveProductionBtn').addEventListener('click', saveProduction);
+            
+            // Botones de compras
+            document.getElementById('refreshShoppingList').addEventListener('click', loadShoppingList);
+            
+            // Botones de movimientos
+            document.getElementById('refreshMovements').addEventListener('click', loadMovements);
+            document.getElementById('movementFilter').addEventListener('change', loadMovements);
+            
+            // Cerrar modales
+            document.querySelectorAll('.modal-close, .modal-footer .btn:not(.btn-primary)').forEach(btn => {
+                btn.addEventListener('click', function() {
+                    const modalId = this.getAttribute('data-modal') || 
+                                   this.closest('.modal-footer').querySelector('.btn-primary').getAttribute('data-modal');
+                    if (modalId) closeModal(modalId);
+                });
+            });
+            
+            // Cerrar modal al hacer clic fuera
+            document.querySelectorAll('.modal').forEach(modal => {
+                modal.addEventListener('click', function(e) {
+                    if (e.target === this) {
+                        this.classList.remove('active');
+                    }
+                });
+            });
+            
+            // Inicializar aplicación
+            initApp();
+        });
+        
+        // Hacer funciones globales para uso en onclick
+        window.editIngredient = openIngredientModal;
+        window.deleteIngredient = deleteIngredient;
+        window.editRecipe = openRecipeModal;
+        window.deleteRecipe = deleteRecipe;
+        window.viewRecipe = viewRecipe;
+        window.deleteProduction = deleteProduction;
+        window.markAsPurchased = markAsPurchased;
+        window.removeIngredientRow = removeIngredientRow;
+        window.closeModal = closeModal;
+        
+    </script>
+    
+    <!-- Firebase SDK -->
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-app.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-auth.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/8.10.0/firebase-firestore.js"></script>
+</body>
+</html>
