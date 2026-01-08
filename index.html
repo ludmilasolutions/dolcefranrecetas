@@ -5,9 +5,14 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>🍰 Pastelería Dolcefran - Sistema de Gestión</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
+    
+    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#FF66B2">
-    <meta name="description" content="Sistema de gestión integral para pastelería">
-    <link rel="manifest" href="data:application/manifest+json,{}">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Pastelería Dolcefran">
+    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
+    
     <style>
         /* ===== VARIABLES Y RESET ===== */
         * {
@@ -1195,6 +1200,26 @@
             font-size: 12px;
             color: var(--gris);
         }
+        
+        /* Precios de venta en recetas */
+        .selling-price-input {
+            position: relative;
+        }
+        
+        .selling-price-input::before {
+            content: '$';
+            position: absolute;
+            left: 15px;
+            top: 50%;
+            transform: translateY(-50%);
+            color: var(--rosa-oscuro);
+            font-weight: bold;
+            z-index: 1;
+        }
+        
+        .selling-price-input input {
+            padding-left: 30px !important;
+        }
     </style>
 </head>
 <body>
@@ -1675,7 +1700,7 @@
                             <input type="number" id="recipePortions" class="form-control" min="1" placeholder="8" required>
                         </div>
                         
-                        <div class="form-group">
+                        <div class="form-group selling-price-input">
                             <label class="form-label" for="sellingPrice">Precio de Venta ($) *</label>
                             <input type="number" id="sellingPrice" class="form-control" step="0.01" min="0" placeholder="0.00" required>
                         </div>
@@ -1763,6 +1788,7 @@
         const firebaseConfig = {
             apiKey: "AIzaSyCn-IxmpSh1PNg81zDCd8GUC7imM9XXAVA",
             authDomain: "dolcefranrecetas.firebaseapp.com",
+            databaseURL: "https://dolcefranrecetas-default-rtdb.firebaseio.com",
             projectId: "dolcefranrecetas",
             storageBucket: "dolcefranrecetas.firebasestorage.app",
             messagingSenderId: "322101534324",
@@ -1811,9 +1837,6 @@
             
             // Inicializar eventos
             initializeEventListeners();
-            
-            // Registrar service worker para PWA
-            registerServiceWorker();
         });
         
         // ===== FUNCIONES DE INICIALIZACIÓN =====
@@ -1829,26 +1852,6 @@
                 cupcake.style.fontSize = `${Math.random() * 30 + 20}px`;
                 cupcake.style.opacity = Math.random() * 0.05 + 0.02;
                 grid.appendChild(cupcake);
-            }
-        }
-        
-        async function registerServiceWorker() {
-            if ('serviceWorker' in navigator) {
-                try {
-                    // Intenta registrar el service worker
-                    const registration = await navigator.serviceWorker.register('sw.js');
-                    console.log('Service Worker registrado con éxito:', registration);
-                    
-                    // Verificar si la app ya está instalada
-                    if (window.matchMedia('(display-mode: standalone)').matches || 
-                        window.navigator.standalone === true) {
-                        console.log('La aplicación ya está instalada');
-                        installButton.style.display = 'none';
-                    }
-                } catch (error) {
-                    console.log('Error al registrar Service Worker:', error);
-                    // Si no existe sw.js, continuamos sin service worker
-                }
             }
         }
         
@@ -2002,6 +2005,10 @@
             
             // Filtro de movimientos
             document.getElementById('movementFilter')?.addEventListener('change', loadMovements);
+            
+            // Eventos para actualizar vista previa de costos
+            document.getElementById('recipePortions')?.addEventListener('input', updateRecipeCostPreview);
+            document.getElementById('sellingPrice')?.addEventListener('input', updateRecipeCostPreview);
         }
         
         // ===== MANEJO DE PANTALLAS =====
@@ -2019,13 +2026,12 @@
         // ===== CONFIGURACIÓN DE FIREBASE =====
         async function initializeFirebase() {
             try {
-                // Si ya hay una app, eliminarla primero
-                if (firebase.apps.length > 0) {
-                    await firebase.app().delete();
+                // Inicializar Firebase solo si no está ya inicializado
+                if (!firebase.apps.length) {
+                    firebase.initializeApp(firebaseConfig);
+                } else {
+                    firebase.app(); // Si ya está inicializado, usa esa instancia
                 }
-                
-                // Inicializar Firebase con las credenciales fijas
-                firebase.initializeApp(firebaseConfig);
                 
                 // Inicializar servicios
                 db = firebase.firestore();
@@ -2190,9 +2196,11 @@
                     .get();
                 appState.productions = [];
                 productionsSnapshot.forEach(doc => {
+                    const data = doc.data();
                     appState.productions.push({
                         id: doc.id,
-                        ...doc.data()
+                        ...data,
+                        date: data.date ? data.date.toDate() : new Date()
                     });
                 });
                 
@@ -2404,12 +2412,13 @@
                         for (const item of recipe.ingredients) {
                             const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
                             if (ingredient) {
-                                totalCost += item.quantity * ingredient.unitCost;
+                                totalCost += (item.quantity || 0) * (ingredient.unitCost || 0);
                             }
                         }
                     }
                     
-                    const costPerPortion = recipe.portions > 0 ? totalCost / recipe.portions : 0;
+                    const portions = recipe.portions || 1;
+                    const costPerPortion = portions > 0 ? totalCost / portions : 0;
                     const profitPerPortion = (recipe.sellingPrice || 0) - costPerPortion;
                     
                     recipe.totalCost = totalCost;
@@ -2462,12 +2471,14 @@
                 productionsList.innerHTML = '';
                 
                 snapshot.forEach(doc => {
+                    const data = doc.data();
                     const production = {
                         id: doc.id,
-                        ...doc.data()
+                        ...data,
+                        date: data.date ? data.date.toDate() : new Date()
                     };
                     
-                    const date = production.date.toDate();
+                    const date = production.date;
                     const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5);
                     const profit = production.profit || 0;
                     
@@ -2561,12 +2572,14 @@
                 movementsList.innerHTML = '';
                 
                 snapshot.forEach(doc => {
+                    const data = doc.data();
                     const movement = {
                         id: doc.id,
-                        ...doc.data()
+                        ...data,
+                        date: data.date ? data.date.toDate() : new Date()
                     };
                     
-                    const date = movement.date.toDate();
+                    const date = movement.date;
                     const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5);
                     
                     const typeBadge = movement.type === 'ingreso' 
@@ -2606,12 +2619,12 @@
             
             form.reset();
             document.getElementById('ingredientId').value = ingredient.id;
-            document.getElementById('ingredientName').value = ingredient.name;
-            document.getElementById('ingredientUnit').value = ingredient.unit;
-            document.getElementById('ingredientCostUnit').value = ingredient.costUnit;
-            document.getElementById('currentStock').value = ingredient.currentStock;
-            document.getElementById('minStock').value = ingredient.minStock;
-            document.getElementById('unitCost').value = ingredient.unitCost;
+            document.getElementById('ingredientName').value = ingredient.name || '';
+            document.getElementById('ingredientUnit').value = ingredient.unit || '';
+            document.getElementById('ingredientCostUnit').value = ingredient.costUnit || '';
+            document.getElementById('currentStock').value = ingredient.currentStock || 0;
+            document.getElementById('minStock').value = ingredient.minStock || 0;
+            document.getElementById('unitCost').value = ingredient.unitCost || 0;
             
             document.getElementById('ingredientModalTitle').innerHTML = '<span>✏️</span> Editar Insumo';
             
@@ -2630,9 +2643,9 @@
                     name: document.getElementById('ingredientName').value,
                     unit: document.getElementById('ingredientUnit').value,
                     costUnit: document.getElementById('ingredientCostUnit').value,
-                    currentStock: parseFloat(document.getElementById('currentStock').value),
-                    minStock: parseFloat(document.getElementById('minStock').value),
-                    unitCost: parseFloat(document.getElementById('unitCost').value),
+                    currentStock: parseFloat(document.getElementById('currentStock').value) || 0,
+                    minStock: parseFloat(document.getElementById('minStock').value) || 0,
+                    unitCost: parseFloat(document.getElementById('unitCost').value) || 0,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
                 };
                 
@@ -2681,7 +2694,10 @@
             
             let selectOptions = '<option value="">Seleccionar insumo</option>';
             appState.ingredients.forEach(ing => {
-                selectOptions += `<option value="${ing.id}" data-unit="${ing.unit}" ${ingredient && ingredient.ingredientId === ing.id ? 'selected' : ''}>${ing.name} (${ing.unit})</option>`;
+                // Asegurarnos de que los valores estén definidos
+                const unit = ing.unit || '';
+                const isSelected = ingredient && ingredient.ingredientId === ing.id;
+                selectOptions += `<option value="${ing.id}" data-unit="${unit}" ${isSelected ? 'selected' : ''}>${ing.name} (${unit})</option>`;
             });
             
             const row = document.createElement('div');
@@ -2691,14 +2707,16 @@
                 <select class="form-control ingredient-select" onchange="updateIngredientUnit(this)" required>
                     ${selectOptions}
                 </select>
-                <input type="number" class="form-control ingredient-quantity" step="0.01" min="0.01" placeholder="Cantidad" value="${ingredient ? ingredient.quantity : ''}" required>
-                <span class="ingredient-unit">${ingredient ? ingredient.unit : ''}</span>
+                <input type="number" class="form-control ingredient-quantity" step="0.01" min="0.01" placeholder="Cantidad" value="${ingredient ? (ingredient.quantity || '') : ''}" required>
+                <span class="ingredient-unit">${ingredient && ingredient.unit ? ingredient.unit : ''}</span>
                 <button type="button" class="remove-ingredient" onclick="removeIngredientRow('${rowId}')">🗑️</button>
             `;
             
             container.appendChild(row);
-            if (ingredient) {
-                updateIngredientUnit(row.querySelector('.ingredient-select'));
+            if (ingredient && ingredient.ingredientId) {
+                // Actualizar la unidad del ingrediente seleccionado
+                const select = row.querySelector('.ingredient-select');
+                updateIngredientUnit(select);
             }
             updateRecipeCostPreview();
         }
@@ -2711,10 +2729,16 @@
         
         function updateIngredientUnit(selectElement) {
             const selectedOption = selectElement.options[selectElement.selectedIndex];
+            if (!selectedOption) return;
+            
             const unit = selectedOption.getAttribute('data-unit') || '';
             const row = selectElement.closest('.ingredient-row');
+            if (!row) return;
+            
             const unitSpan = row.querySelector('.ingredient-unit');
-            unitSpan.textContent = unit;
+            if (unitSpan) {
+                unitSpan.textContent = unit;
+            }
             updateRecipeCostPreview();
         }
         
@@ -2731,10 +2755,11 @@
                 const select = row.querySelector('.ingredient-select');
                 const quantityInput = row.querySelector('.ingredient-quantity');
                 
-                if (select.value && quantityInput.value) {
+                if (select && select.value && quantityInput && quantityInput.value) {
                     const ingredient = appState.ingredients.find(i => i.id === select.value);
                     if (ingredient) {
-                        totalCost += parseFloat(quantityInput.value) * ingredient.unitCost;
+                        const quantity = parseFloat(quantityInput.value) || 0;
+                        totalCost += quantity * (ingredient.unitCost || 0);
                     }
                 }
             });
@@ -2763,9 +2788,9 @@
             
             form.reset();
             document.getElementById('recipeId').value = recipe.id;
-            document.getElementById('recipeName').value = recipe.name;
+            document.getElementById('recipeName').value = recipe.name || '';
             document.getElementById('recipeDescription').value = recipe.description || '';
-            document.getElementById('recipePortions').value = recipe.portions;
+            document.getElementById('recipePortions').value = recipe.portions || 1;
             document.getElementById('sellingPrice').value = recipe.sellingPrice || 0;
             document.getElementById('recipeInstructions').value = recipe.instructions || '';
             
@@ -2807,14 +2832,14 @@
                     const quantityInput = row.querySelector('.ingredient-quantity');
                     const unitSpan = row.querySelector('.ingredient-unit');
                     
-                    if (select.value && quantityInput.value) {
+                    if (select && select.value && quantityInput && quantityInput.value) {
                         const ingredient = appState.ingredients.find(i => i.id === select.value);
                         if (ingredient) {
                             ingredients.push({
                                 ingredientId: select.value,
-                                ingredientName: ingredient.name,
-                                quantity: parseFloat(quantityInput.value),
-                                unit: unitSpan.textContent || ingredient.unit
+                                ingredientName: ingredient.name || '',
+                                quantity: parseFloat(quantityInput.value) || 0,
+                                unit: (unitSpan && unitSpan.textContent) || ingredient.unit || ''
                             });
                         }
                     }
@@ -2828,8 +2853,8 @@
                 const recipeData = {
                     name: document.getElementById('recipeName').value,
                     description: document.getElementById('recipeDescription').value,
-                    portions: parseInt(document.getElementById('recipePortions').value),
-                    sellingPrice: parseFloat(document.getElementById('sellingPrice').value),
+                    portions: parseInt(document.getElementById('recipePortions').value) || 1,
+                    sellingPrice: parseFloat(document.getElementById('sellingPrice').value) || 0,
                     ingredients: ingredients,
                     instructions: document.getElementById('recipeInstructions').value,
                     updatedAt: firebase.firestore.FieldValue.serverTimestamp()
@@ -2877,15 +2902,17 @@
             if (!recipe) return;
             
             let ingredientsHtml = '<ul style="margin-top: 10px;">';
-            recipe.ingredients?.forEach(ing => {
-                ingredientsHtml += `<li>${ing.ingredientName}: ${ing.quantity} ${ing.unit}</li>`;
-            });
+            if (recipe.ingredients && recipe.ingredients.length > 0) {
+                recipe.ingredients.forEach(ing => {
+                    ingredientsHtml += `<li>${ing.ingredientName || ''}: ${ing.quantity || 0} ${ing.unit || ''}</li>`;
+                });
+            }
             ingredientsHtml += '</ul>';
             
             const profitPerPortion = recipe.profitPerPortion || 0;
             const profitClass = profitPerPortion >= 0 ? 'profit-positive' : 'profit-negative';
             
-            alert(`📋 ${recipe.name}\n\n📝 Descripción: ${recipe.description || 'Sin descripción'}\n🍽️ Porciones: ${recipe.portions}\n💰 Precio de Venta: $${(recipe.sellingPrice || 0).toFixed(2)}\n💸 Costo Total: $${recipe.totalCost?.toFixed(2) || '0.00'}\n💸 Costo por Porción: $${recipe.costPerPortion?.toFixed(2) || '0.00'}\n💰 Ganancia por Porción: <span class="${profitClass}">$${profitPerPortion.toFixed(2)}</span>\n\n📦 Ingredientes:${ingredientsHtml}\n\n📝 Instrucciones: ${recipe.instructions || 'No especificadas'}`);
+            alert(`📋 ${recipe.name}\n\n📝 Descripción: ${recipe.description || 'Sin descripción'}\n🍽️ Porciones: ${recipe.portions || 0}\n💰 Precio de Venta: $${(recipe.sellingPrice || 0).toFixed(2)}\n💸 Costo Total: $${recipe.totalCost?.toFixed(2) || '0.00'}\n💸 Costo por Porción: $${recipe.costPerPortion?.toFixed(2) || '0.00'}\n💰 Ganancia por Porción: <span class="${profitClass}">$${profitPerPortion.toFixed(2)}</span>\n\n📦 Ingredientes:${ingredientsHtml}\n\n📝 Instrucciones: ${recipe.instructions || 'No especificadas'}`);
         }
         
         // Funciones para producción
@@ -2898,7 +2925,7 @@
             appState.recipes.forEach(recipe => {
                 const option = document.createElement('option');
                 option.value = recipe.id;
-                option.textContent = recipe.name;
+                option.textContent = recipe.name || '';
                 option.setAttribute('data-selling-price', recipe.sellingPrice || 0);
                 select.appendChild(option);
             });
@@ -2937,23 +2964,25 @@
             let missingIngredients = [];
             
             // Verificar stock de ingredientes
-            recipe.ingredients?.forEach(item => {
-                const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
-                if (ingredient) {
-                    const neededQuantity = item.quantity * quantity;
-                    totalCost += neededQuantity * ingredient.unitCost;
-                    
-                    if (ingredient.currentStock < neededQuantity) {
-                        canProduce = false;
-                        missingIngredients.push({
-                            name: ingredient.name,
-                            needed: neededQuantity,
-                            available: ingredient.currentStock,
-                            unit: ingredient.unit
-                        });
+            if (recipe.ingredients && recipe.ingredients.length > 0) {
+                recipe.ingredients.forEach(item => {
+                    const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
+                    if (ingredient) {
+                        const neededQuantity = (item.quantity || 0) * quantity;
+                        totalCost += neededQuantity * (ingredient.unitCost || 0);
+                        
+                        if (ingredient.currentStock < neededQuantity) {
+                            canProduce = false;
+                            missingIngredients.push({
+                                name: ingredient.name || '',
+                                needed: neededQuantity,
+                                available: ingredient.currentStock || 0,
+                                unit: ingredient.unit || ''
+                            });
+                        }
                     }
-                }
-            });
+                });
+            }
             
             const sellingPrice = recipe.sellingPrice || 0;
             const totalSellingPrice = sellingPrice * quantity;
@@ -2962,7 +2991,7 @@
             // Mostrar información
             infoDiv.innerHTML = `
                 <strong>📋 ${recipe.name}</strong><br>
-                <small>Porciones: ${recipe.portions}</small><br>
+                <small>Porciones: ${recipe.portions || 0}</small><br>
                 <small>Precio de venta por unidad: $${sellingPrice.toFixed(2)}</small><br>
                 <small>Costo estimado: $${totalCost.toFixed(2)}</small>
             `;
@@ -3008,38 +3037,40 @@
                 const movements = [];
                 
                 // Verificar stock y preparar actualizaciones
-                for (const item of recipe.ingredients) {
-                    const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
-                    if (ingredient) {
-                        const neededQuantity = item.quantity * quantity;
-                        
-                        if (ingredient.currentStock < neededQuantity) {
-                            showToast(`Stock insuficiente de ${ingredient.name}`, 'danger');
-                            return;
-                        }
-                        
-                        totalCost += neededQuantity * ingredient.unitCost;
-                        
-                        // Preparar actualización de stock
-                        updates.push({
-                            docRef: db.collection('ingredients').doc(ingredient.id),
-                            data: {
-                                currentStock: ingredient.currentStock - neededQuantity,
-                                updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                if (recipe.ingredients && recipe.ingredients.length > 0) {
+                    for (const item of recipe.ingredients) {
+                        const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
+                        if (ingredient) {
+                            const neededQuantity = (item.quantity || 0) * quantity;
+                            
+                            if (ingredient.currentStock < neededQuantity) {
+                                showToast(`Stock insuficiente de ${ingredient.name}`, 'danger');
+                                return;
                             }
-                        });
-                        
-                        // Preparar movimiento de stock
-                        movements.push({
-                            ingredientId: ingredient.id,
-                            ingredientName: ingredient.name,
-                            type: 'egreso',
-                            quantity: neededQuantity,
-                            unit: ingredient.unit,
-                            reason: `Producción: ${recipe.name}`,
-                            date: firebase.firestore.FieldValue.serverTimestamp(),
-                            userId: currentUser.uid
-                        });
+                            
+                            totalCost += neededQuantity * (ingredient.unitCost || 0);
+                            
+                            // Preparar actualización de stock
+                            updates.push({
+                                docRef: db.collection('ingredients').doc(ingredient.id),
+                                data: {
+                                    currentStock: ingredient.currentStock - neededQuantity,
+                                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                                }
+                            });
+                            
+                            // Preparar movimiento de stock
+                            movements.push({
+                                ingredientId: ingredient.id,
+                                ingredientName: ingredient.name || '',
+                                type: 'egreso',
+                                quantity: neededQuantity,
+                                unit: ingredient.unit || '',
+                                reason: `Producción: ${recipe.name}`,
+                                date: firebase.firestore.FieldValue.serverTimestamp(),
+                                userId: currentUser.uid
+                            });
+                        }
                     }
                 }
                 
@@ -3059,7 +3090,7 @@
                 const productionRef = db.collection('productions').doc();
                 const productionData = {
                     recipeId: recipeId,
-                    recipeName: recipe.name,
+                    recipeName: recipe.name || '',
                     quantity: quantity,
                     totalCost: totalCost,
                     sellingPrice: sellingPrice,
@@ -3121,7 +3152,7 @@
             
             try {
                 // Actualizar stock
-                const newStock = ingredient.currentStock + purchaseQuantity;
+                const newStock = (ingredient.currentStock || 0) + purchaseQuantity;
                 await db.collection('ingredients').doc(ingredientId).update({
                     currentStock: newStock
                 });
@@ -3129,10 +3160,10 @@
                 // Registrar movimiento de stock
                 await db.collection('stockMovements').add({
                     ingredientId: ingredientId,
-                    ingredientName: ingredient.name,
+                    ingredientName: ingredient.name || '',
                     type: 'ingreso',
                     quantity: purchaseQuantity,
-                    unit: ingredient.unit,
+                    unit: ingredient.unit || '',
                     reason: 'Compra',
                     date: firebase.firestore.FieldValue.serverTimestamp(),
                     userId: currentUser.uid
@@ -3250,10 +3281,6 @@
         window.showSection = showSection;
         window.updateIngredientUnit = updateIngredientUnit;
         window.removeIngredientRow = removeIngredientRow;
-        
-        // Event listeners adicionales para actualización en tiempo real
-        document.getElementById('recipePortions')?.addEventListener('input', updateRecipeCostPreview);
-        document.getElementById('sellingPrice')?.addEventListener('input', updateRecipeCostPreview);
         
     </script>
     
