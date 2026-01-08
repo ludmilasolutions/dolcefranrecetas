@@ -9,580 +9,791 @@
             margin: 0;
             padding: 0;
             box-sizing: border-box;
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            font-family: 'Segoe UI', system-ui, sans-serif;
         }
-
+        
         body {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(135deg, #f5f7fa 0%, #c3cfe2 100%);
             min-height: 100vh;
-            display: flex;
-            justify-content: center;
-            align-items: center;
             padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
         }
-
-        .setup-container {
+        
+        .container {
+            max-width: 800px;
+            width: 100%;
             background: white;
             border-radius: 20px;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
-            width: 100%;
-            max-width: 800px;
-            overflow: hidden;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.1);
+            padding: 40px;
+            margin: 20px;
         }
-
-        .setup-header {
-            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
-            color: white;
-            padding: 30px;
+        
+        .header {
             text-align: center;
+            margin-bottom: 40px;
         }
-
-        .setup-header h1 {
-            font-size: 2.5rem;
+        
+        .logo {
+            font-size: 2.8rem;
+            color: #7b4397;
             margin-bottom: 10px;
         }
-
-        .setup-header p {
-            opacity: 0.9;
-            font-size: 1.1rem;
-        }
-
-        .setup-content {
-            padding: 40px;
-        }
-
-        .credentials-form {
-            display: grid;
-            gap: 20px;
-            margin-bottom: 30px;
-        }
-
-        .form-group {
-            display: grid;
-            gap: 8px;
-        }
-
-        .form-group label {
-            font-weight: 600;
+        
+        h1 {
             color: #333;
-            font-size: 0.9rem;
+            margin-bottom: 10px;
+            font-size: 2.2rem;
         }
-
-        .form-group input {
-            padding: 15px;
-            border: 2px solid #e0e0e0;
+        
+        .subtitle {
+            color: #666;
+            font-size: 1.1rem;
+            line-height: 1.6;
+        }
+        
+        .card {
+            background: #f8f9fa;
+            border-radius: 15px;
+            padding: 25px;
+            margin-bottom: 25px;
+            border-left: 5px solid #7b4397;
+        }
+        
+        .card h2 {
+            color: #444;
+            margin-bottom: 15px;
+            font-size: 1.4rem;
+        }
+        
+        .form-group {
+            margin-bottom: 20px;
+        }
+        
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 600;
+            color: #555;
+        }
+        
+        input {
+            width: 100%;
+            padding: 14px;
+            border: 2px solid #e1e5eb;
             border-radius: 10px;
-            font-size: 1rem;
+            font-size: 16px;
             transition: all 0.3s;
         }
-
-        .form-group input:focus {
+        
+        input:focus {
             outline: none;
-            border-color: #667eea;
-            box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+            border-color: #7b4397;
+            box-shadow: 0 0 0 3px rgba(123, 67, 151, 0.2);
         }
-
+        
         .btn {
-            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            background: linear-gradient(to right, #7b4397, #dc2430);
             color: white;
             border: none;
-            padding: 18px 30px;
+            padding: 16px 30px;
             border-radius: 12px;
-            font-size: 1.1rem;
+            font-size: 18px;
             font-weight: 600;
             cursor: pointer;
             transition: all 0.3s;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            gap: 10px;
-            margin-top: 20px;
+            width: 100%;
+            margin-top: 10px;
         }
-
+        
         .btn:hover {
             transform: translateY(-2px);
-            box-shadow: 0 10px 20px rgba(102, 126, 234, 0.3);
+            box-shadow: 0 7px 20px rgba(123, 67, 151, 0.3);
         }
-
+        
         .btn:active {
             transform: translateY(0);
         }
-
+        
         .btn:disabled {
-            opacity: 0.6;
+            background: #cccccc;
             cursor: not-allowed;
             transform: none;
+            box-shadow: none;
         }
-
-        .logs-container {
-            background: #f8f9fa;
+        
+        .logs {
+            background: #1a1a1a;
+            color: #f0f0f0;
             border-radius: 10px;
             padding: 20px;
             margin-top: 30px;
             max-height: 300px;
             overflow-y: auto;
-            font-family: 'Courier New', monospace;
-            font-size: 0.9rem;
+            font-family: monospace;
+            font-size: 14px;
         }
-
+        
         .log-entry {
-            padding: 8px 12px;
-            margin-bottom: 6px;
-            border-radius: 6px;
-            border-left: 4px solid #667eea;
-            background: white;
+            margin-bottom: 10px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #333;
         }
-
-        .log-entry.success {
-            border-left-color: #10b981;
-            background: #f0fdf4;
+        
+        .success {
+            color: #4CAF50;
         }
-
-        .log-entry.error {
-            border-left-color: #ef4444;
-            background: #fef2f2;
+        
+        .error {
+            color: #f44336;
         }
-
-        .log-entry.warning {
-            border-left-color: #f59e0b;
-            background: #fffbeb;
+        
+        .warning {
+            color: #FF9800;
         }
-
-        .progress-bar {
-            height: 6px;
-            background: #e0e0e0;
-            border-radius: 3px;
-            margin: 20px 0;
-            overflow: hidden;
+        
+        .info {
+            color: #2196F3;
         }
-
-        .progress {
-            height: 100%;
-            background: linear-gradient(135deg, #10b981 0%, #34d399 100%);
-            width: 0%;
-            transition: width 0.3s;
-        }
-
-        .alert {
-            padding: 20px;
-            border-radius: 12px;
-            margin-bottom: 20px;
+        
+        .status-bar {
             display: flex;
             align-items: center;
-            gap: 15px;
-        }
-
-        .alert.warning {
-            background: #fffbeb;
-            border: 2px solid #f59e0b;
-            color: #92400e;
-        }
-
-        .alert.success {
-            background: #f0fdf4;
-            border: 2px solid #10b981;
-            color: #065f46;
-        }
-
-        .alert-icon {
-            font-size: 2rem;
-        }
-
-        .setup-complete {
-            text-align: center;
-            padding: 40px;
-        }
-
-        .setup-complete h2 {
-            color: #10b981;
+            justify-content: center;
+            padding: 15px;
+            border-radius: 10px;
             margin-bottom: 20px;
-            font-size: 2rem;
+            font-weight: 600;
         }
-
-        .setup-complete p {
-            color: #666;
+        
+        .status-ready {
+            background: #e8f5e9;
+            color: #2e7d32;
+            border: 2px solid #4CAF50;
+        }
+        
+        .status-warning {
+            background: #fff3e0;
+            color: #ef6c00;
+            border: 2px solid #FF9800;
+        }
+        
+        .steps {
+            display: flex;
+            justify-content: space-between;
             margin-bottom: 30px;
-            font-size: 1.1rem;
+            position: relative;
         }
-
-        .emoji {
-            font-size: 4rem;
-            margin-bottom: 20px;
+        
+        .steps:before {
+            content: '';
+            position: absolute;
+            top: 20px;
+            left: 10%;
+            right: 10%;
+            height: 3px;
+            background: #e0e0e0;
+            z-index: 1;
         }
-
+        
+        .step {
+            text-align: center;
+            position: relative;
+            z-index: 2;
+            flex: 1;
+        }
+        
+        .step-number {
+            width: 40px;
+            height: 40px;
+            background: #e0e0e0;
+            color: #666;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin: 0 auto 10px;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        
+        .step.active .step-number {
+            background: linear-gradient(to right, #7b4397, #dc2430);
+            color: white;
+        }
+        
+        .step.completed .step-number {
+            background: #4CAF50;
+            color: white;
+        }
+        
+        .step-label {
+            font-size: 14px;
+            color: #666;
+        }
+        
+        .step.active .step-label {
+            color: #7b4397;
+            font-weight: 600;
+        }
+        
+        .firebase-config {
+            background: #fff8e1;
+            padding: 15px;
+            border-radius: 10px;
+            border-left: 5px solid #FFB300;
+            margin-top: 20px;
+        }
+        
+        .firebase-config h3 {
+            color: #FF6F00;
+            margin-bottom: 10px;
+        }
+        
+        .firebase-config ol {
+            padding-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .firebase-config li {
+            margin-bottom: 8px;
+            line-height: 1.5;
+        }
+        
         @media (max-width: 768px) {
-            .setup-container {
-                margin: 10px;
+            .container {
+                padding: 25px;
             }
             
-            .setup-content {
-                padding: 20px;
+            h1 {
+                font-size: 1.8rem;
             }
             
-            .setup-header h1 {
-                font-size: 2rem;
+            .steps {
+                flex-direction: column;
+                gap: 20px;
+            }
+            
+            .steps:before {
+                display: none;
+            }
+            
+            .step {
+                display: flex;
+                align-items: center;
+                gap: 15px;
+            }
+            
+            .step-number {
+                margin: 0;
+                flex-shrink: 0;
             }
         }
     </style>
 </head>
 <body>
-    <div class="setup-container">
-        <div class="setup-header">
-            <h1>🍰 Configuración del Sistema</h1>
-            <p>Configuración inicial de la aplicación de gestión para pastelería</p>
+    <div class="container">
+        <div class="header">
+            <div class="logo">🍰</div>
+            <h1>Sistema de Gestión para Pastelería</h1>
+            <p class="subtitle">Configuración inicial del sistema de recetas, stock, costos y lista de compras</p>
         </div>
         
-        <div class="setup-content">
-            <div id="statusAlert" class="alert warning">
-                <div class="alert-icon">⚠️</div>
-                <div>
-                    <strong>Configuración pendiente</strong>
-                    <p>Por favor, ingresa las credenciales de Firebase y haz clic en "Inicializar Base de Datos"</p>
-                </div>
+        <div id="statusBar" class="status-bar status-warning">
+            ⚠️ Sistema no configurado. Complete la configuración inicial.
+        </div>
+        
+        <div class="steps">
+            <div class="step active">
+                <div class="step-number">1</div>
+                <div class="step-label">Credenciales</div>
             </div>
+            <div class="step">
+                <div class="step-number">2</div>
+                <div class="step-label">Base de Datos</div>
+            </div>
+            <div class="step">
+                <div class="step-number">3</div>
+                <div class="step-label">Usuario Admin</div>
+            </div>
+            <div class="step">
+                <div class="step-number">4</div>
+                <div class="step-label">Datos de Ejemplo</div>
+            </div>
+        </div>
+        
+        <div class="card">
+            <h2>Credenciales de Firebase</h2>
+            <p>Ingrese las credenciales de su proyecto Firebase. Puede obtenerlas desde Firebase Console → Configuración del proyecto → Configuración general → Aplicaciones web.</p>
             
-            <form id="setupForm" class="credentials-form">
+            <form id="setupForm">
                 <div class="form-group">
                     <label for="apiKey">API Key</label>
-                    <input type="text" id="apiKey" required placeholder="AIzaSyB...">
+                    <input type="text" id="apiKey" placeholder="AIzaSyBx..." required>
                 </div>
                 
                 <div class="form-group">
                     <label for="authDomain">Auth Domain</label>
-                    <input type="text" id="authDomain" required placeholder="tu-proyecto.firebaseapp.com">
+                    <input type="text" id="authDomain" placeholder="tu-proyecto.firebaseapp.com" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="projectId">Project ID</label>
-                    <input type="text" id="projectId" required placeholder="tu-proyecto">
+                    <input type="text" id="projectId" placeholder="tu-proyecto" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="storageBucket">Storage Bucket</label>
-                    <input type="text" id="storageBucket" required placeholder="tu-proyecto.appspot.com">
+                    <input type="text" id="storageBucket" placeholder="tu-proyecto.appspot.com" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="messagingSenderId">Messaging Sender ID</label>
-                    <input type="text" id="messagingSenderId" required placeholder="123456789012">
+                    <input type="text" id="messagingSenderId" placeholder="123456789012" required>
                 </div>
                 
                 <div class="form-group">
                     <label for="appId">App ID</label>
-                    <input type="text" id="appId" required placeholder="1:123456789012:web:abcd1234">
+                    <input type="text" id="appId" placeholder="1:123456789012:web:abcdef123456" required>
                 </div>
                 
                 <button type="submit" class="btn" id="setupBtn">
-                    <span>👷 Inicializar Base de Datos</span>
+                    👉 Inicializar Base de Datos
                 </button>
             </form>
-            
-            <div class="progress-bar">
-                <div class="progress" id="setupProgress"></div>
-            </div>
-            
-            <div class="logs-container">
-                <div id="logsContainer">
-                    <div class="log-entry">🔍 Esperando configuración...</div>
-                </div>
-            </div>
+        </div>
+        
+        <div class="firebase-config">
+            <h3>¿Cómo obtener las credenciales de Firebase?</h3>
+            <ol>
+                <li>Accede a <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+                <li>Crea un nuevo proyecto o selecciona uno existente</li>
+                <li>En la página principal del proyecto, haz clic en "Agregar aplicación" (ícono web)</li>
+                <li>Registra tu aplicación con un nombre (ej: "Pastelería App")</li>
+                <li>Copia las credenciales que Firebase te proporciona y pégalas en los campos anteriores</li>
+            </ol>
+        </div>
+        
+        <div class="logs" id="logs">
+            <div class="log-entry info">📋 Registros de configuración aparecerán aquí...</div>
         </div>
     </div>
 
     <script type="module">
-        // Firebase imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+        // Importar Firebase SDK
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-app.js";
         import { 
             getFirestore, 
-            collection, 
             doc, 
             setDoc, 
-            getDoc,
-            Timestamp,
-            serverTimestamp 
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore.js";
+            collection, 
+            getDoc, 
+            serverTimestamp,
+            writeBatch 
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-firestore.js";
         import { 
             getAuth, 
-            createUserWithEmailAndPassword 
-        } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
+            createUserWithEmailAndPassword,
+            signInWithEmailAndPassword,
+            signOut 
+        } from "https://www.gstatic.com/firebasejs/9.22.2/firebase-auth.js";
 
-        // DOM Elements
+        // Elementos del DOM
         const setupForm = document.getElementById('setupForm');
         const setupBtn = document.getElementById('setupBtn');
-        const logsContainer = document.getElementById('logsContainer');
-        const setupProgress = document.getElementById('setupProgress');
-        const statusAlert = document.getElementById('statusAlert');
+        const logsDiv = document.getElementById('logs');
+        const statusBar = document.getElementById('statusBar');
+        const steps = document.querySelectorAll('.step');
 
-        // Check if setup is already completed
-        async function checkSetupStatus() {
+        // Variables globales
+        let app, db, auth;
+
+        // Verificar si el sistema ya está configurado
+        async function checkSetup() {
             try {
-                // Try to load existing Firebase config from localStorage
-                const savedConfig = localStorage.getItem('firebaseConfig');
+                // Intentar cargar configuración desde localStorage
+                const savedConfig = localStorage.getItem('pasteleria_firebase_config');
+                
                 if (savedConfig) {
                     const config = JSON.parse(savedConfig);
                     
-                    // Pre-fill form with saved config
-                    document.getElementById('apiKey').value = config.apiKey || '';
-                    document.getElementById('authDomain').value = config.authDomain || '';
-                    document.getElementById('projectId').value = config.projectId || '';
-                    document.getElementById('storageBucket').value = config.storageBucket || '';
-                    document.getElementById('messagingSenderId').value = config.messagingSenderId || '';
-                    document.getElementById('appId').value = config.appId || '';
+                    // Configurar Firebase con credenciales guardadas
+                    app = initializeApp(config);
+                    db = getFirestore(app);
+                    auth = getAuth(app);
                     
-                    // Try to connect and check setup status
-                    const app = initializeApp(config);
-                    const db = getFirestore(app);
-                    
+                    // Verificar si el setup ya se completó
                     const configDoc = await getDoc(doc(db, 'config', 'app'));
                     
                     if (configDoc.exists() && configDoc.data().setupCompleted) {
-                        showSetupComplete();
+                        showStatus('ready', '✅ Sistema ya inicializado. Redirigiendo a la aplicación...');
+                        
+                        // Redirigir a la app después de 3 segundos
+                        setTimeout(() => {
+                            window.location.href = 'app.html';
+                        }, 3000);
+                        
+                        setupBtn.disabled = true;
+                        setupBtn.textContent = 'Sistema ya configurado';
                         return true;
                     }
                 }
+                
+                return false;
             } catch (error) {
-                console.log('No hay configuración previa o error al verificar:', error.message);
+                console.log('No hay configuración previa o error:', error.message);
+                return false;
             }
-            return false;
         }
 
-        // Show setup complete message
-        function showSetupComplete() {
-            statusAlert.className = 'alert success';
-            statusAlert.innerHTML = `
-                <div class="alert-icon">✅</div>
-                <div>
-                    <strong>Sistema ya inicializado</strong>
-                    <p>El sistema ya ha sido configurado. Puedes proceder a usar la aplicación principal.</p>
-                </div>
-            `;
-            
-            setupForm.style.display = 'none';
-            setupProgress.parentElement.style.display = 'none';
-            
-            logsContainer.innerHTML = `
-                <div class="log-entry success">✅ Sistema ya configurado</div>
-                <div class="log-entry">📱 Ve a app.html para usar la aplicación</div>
-                <div class="log-entry warning">⚠️ No ejecutes esta configuración nuevamente</div>
-            `;
-            
-            const completeDiv = document.createElement('div');
-            completeDiv.className = 'setup-complete';
-            completeDiv.innerHTML = `
-                <div class="emoji">🎉</div>
-                <h2>Configuración Completada</h2>
-                <p>El sistema ha sido configurado exitosamente. Ahora puedes usar la aplicación principal.</p>
-                <a href="app.html" class="btn" style="width: 200px; margin: 0 auto;">
-                    <span>🚀 Ir a la Aplicación</span>
-                </a>
-            `;
-            
-            document.querySelector('.setup-content').appendChild(completeDiv);
-        }
-
-        // Add log message
-        function addLog(message, type = 'info') {
+        // Función para mostrar logs
+        function logMessage(message, type = 'info') {
             const logEntry = document.createElement('div');
             logEntry.className = `log-entry ${type}`;
+            logEntry.innerHTML = `${getTimestamp()} ${getIcon(type)} ${message}`;
+            logsDiv.appendChild(logEntry);
+            logsDiv.scrollTop = logsDiv.scrollHeight;
             
-            const timestamp = new Date().toLocaleTimeString();
-            logEntry.textContent = `[${timestamp}] ${message}`;
-            
-            logsContainer.appendChild(logEntry);
-            logsContainer.scrollTop = logsContainer.scrollHeight;
+            // Actualizar paso activo
+            updateSteps(type);
         }
 
-        // Update progress bar
-        function updateProgress(percentage) {
-            setupProgress.style.width = `${percentage}%`;
+        // Función para obtener timestamp
+        function getTimestamp() {
+            const now = new Date();
+            return `[${now.getHours().toString().padStart(2, '0')}:${now.getMinutes().toString().padStart(2, '0')}:${now.getSeconds().toString().padStart(2, '0')}]`;
         }
 
-        // Initialize database
+        // Función para obtener icono según tipo
+        function getIcon(type) {
+            switch(type) {
+                case 'success': return '✅';
+                case 'error': return '❌';
+                case 'warning': return '⚠️';
+                case 'info': return '📋';
+                default: return '📝';
+            }
+        }
+
+        // Función para actualizar pasos
+        function updateSteps(type) {
+            if (type === 'success') {
+                const currentStep = document.querySelector('.step.active');
+                if (currentStep) {
+                    currentStep.classList.remove('active');
+                    currentStep.classList.add('completed');
+                    
+                    const nextStep = currentStep.nextElementSibling;
+                    if (nextStep) {
+                        nextStep.classList.add('active');
+                    }
+                }
+            }
+        }
+
+        // Función para mostrar estado
+        function showStatus(type, message) {
+            statusBar.className = `status-bar status-${type}`;
+            statusBar.innerHTML = type === 'ready' ? '✅' : '⚠️';
+            statusBar.innerHTML += ` ${message}`;
+        }
+
+        // Función para inicializar la base de datos
         async function initializeDatabase(config) {
             try {
-                setupBtn.disabled = true;
-                setupBtn.innerHTML = '<span>⏳ Inicializando...</span>';
+                logMessage('Inicializando Firebase...', 'info');
                 
-                addLog('🚀 Iniciando configuración del sistema...');
-                updateProgress(10);
+                // Guardar configuración en localStorage
+                localStorage.setItem('pasteleria_firebase_config', JSON.stringify(config));
                 
-                // 1. Initialize Firebase
-                addLog('⚙️ Inicializando Firebase...');
-                const app = initializeApp(config);
-                const db = getFirestore(app);
-                const auth = getAuth(app);
+                // Inicializar Firebase
+                app = initializeApp(config);
+                db = getFirestore(app);
+                auth = getAuth(app);
                 
-                updateProgress(20);
-                addLog('✅ Firebase inicializado correctamente');
+                logMessage('Firebase inicializado correctamente', 'success');
                 
-                // 2. Create collections and documents
-                addLog('📦 Creando estructura de datos...');
+                // Crear colecciones
+                await createCollections();
                 
-                // Check if config exists
-                const configDocRef = doc(db, 'config', 'app');
-                const configDoc = await getDoc(configDocRef);
+                // Crear usuario admin
+                await createAdminUser();
                 
-                if (configDoc.exists()) {
-                    throw new Error('El sistema ya ha sido configurado. No se puede ejecutar setup nuevamente.');
-                }
+                // Insertar datos de ejemplo
+                await insertSampleData();
                 
-                updateProgress(30);
-                
-                // Create config document
-                await setDoc(configDocRef, {
+                // Marcar setup como completado
+                await setDoc(doc(db, 'config', 'app'), {
                     setupCompleted: true,
                     createdAt: serverTimestamp(),
-                    appName: 'Pastelería Management System',
                     version: '1.0.0'
                 });
-                addLog('✅ Documento de configuración creado');
                 
-                updateProgress(40);
+                logMessage('Configuración completada exitosamente!', 'success');
+                showStatus('ready', '✅ Sistema configurado correctamente. Redirigiendo...');
                 
-                // Create admin user
-                addLog('👤 Creando usuario administrador...');
-                try {
-                    await createUserWithEmailAndPassword(
-                        auth, 
-                        'admin@pasteleria.com', 
-                        'Admin123!'
-                    );
-                    addLog('✅ Usuario administrador creado (admin@pasteleria.com / Admin123!)');
-                } catch (authError) {
-                    if (authError.code === 'auth/email-already-in-use') {
-                        addLog('⚠️ Usuario administrador ya existe', 'warning');
-                    } else {
-                        throw authError;
-                    }
-                }
-                
-                updateProgress(50);
-                
-                // Create sample data
-                addLog('📝 Insertando datos de ejemplo...');
-                
-                // Sample insumos
-                const insumos = [
-                    {
-                        id: 'harina_00',
-                        nombre: 'Harina 0000',
-                        unidad: 'kg',
-                        stockActual: 10,
-                        stockMinimo: 5,
-                        costoUnitario: 150,
-                        unidadCosto: 'kg',
-                        createdAt: serverTimestamp()
-                    },
-                    {
-                        id: 'azucar',
-                        nombre: 'Azúcar refinada',
-                        unidad: 'kg',
-                        stockActual: 3,
-                        stockMinimo: 8,
-                        costoUnitario: 120,
-                        unidadCosto: 'kg',
-                        createdAt: serverTimestamp()
-                    }
-                ];
-                
-                for (const insumo of insumos) {
-                    await setDoc(doc(db, 'insumos', insumo.id), insumo);
-                }
-                addLog(`✅ ${insumos.length} insumos de ejemplo creados`);
-                
-                updateProgress(70);
-                
-                // Sample receta
-                const recetaId = 'bizcochuelo_vainilla';
-                await setDoc(doc(db, 'recetas', recetaId), {
-                    nombre: 'Bizcochuelo de Vainilla',
-                    descripcion: 'Bizcochuelo clásico de vainilla para tortas',
-                    porciones: 8,
-                    ingredientes: [
-                        {
-                            insumoId: 'harina_00',
-                            cantidad: 500,
-                            unidad: 'g',
-                            nombre: 'Harina 0000'
-                        },
-                        {
-                            insumoId: 'azucar',
-                            cantidad: 300,
-                            unidad: 'g',
-                            nombre: 'Azúcar refinada'
-                        }
-                    ],
-                    costoTotal: 105, // Calculado: (0.5 * 150) + (0.3 * 120)
-                    costoPorPorcion: 13.125,
-                    createdAt: serverTimestamp()
-                });
-                addLog('✅ Receta de ejemplo creada');
-                
-                updateProgress(90);
-                
-                // Create other collections structure
-                const collections = ['users', 'producciones', 'movimientos_stock'];
-                for (const collectionName of collections) {
-                    const dummyDoc = doc(collection(db, collectionName), 'dummy');
-                    await setDoc(dummyDoc, { _placeholder: true });
-                    await setDoc(dummyDoc, { _placeholder: false }); // Remove placeholder
-                }
-                addLog('✅ Estructura de colecciones completada');
-                
-                updateProgress(100);
-                
-                // Save config to localStorage
-                localStorage.setItem('firebaseConfig', JSON.stringify(config));
-                
-                addLog('🎉 Configuración completada exitosamente!', 'success');
-                addLog('📱 Redirigiendo a la aplicación...');
-                
-                // Show success and redirect after 2 seconds
+                // Redirigir a la app después de 3 segundos
                 setTimeout(() => {
                     window.location.href = 'app.html';
-                }, 2000);
+                }, 3000);
                 
             } catch (error) {
-                addLog(`❌ Error: ${error.message}`, 'error');
-                setupBtn.disabled = false;
-                setupBtn.innerHTML = '<span>👷 Reintentar Inicialización</span>';
+                logMessage(`Error: ${error.message}`, 'error');
                 throw error;
             }
         }
 
-        // Form submit handler
-        setupForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
+        // Función para crear colecciones
+        async function createCollections() {
+            const collections = [
+                'config',
+                'users',
+                'insumos',
+                'recetas',
+                'producciones',
+                'movimientos_stock'
+            ];
             
-            const config = {
-                apiKey: document.getElementById('apiKey').value.trim(),
-                authDomain: document.getElementById('authDomain').value.trim(),
-                projectId: document.getElementById('projectId').value.trim(),
-                storageBucket: document.getElementById('storageBucket').value.trim(),
-                messagingSenderId: document.getElementById('messagingSenderId').value.trim(),
-                appId: document.getElementById('appId').value.trim()
-            };
+            logMessage('Creando colecciones...', 'info');
             
-            // Validate config
-            for (const [key, value] of Object.entries(config)) {
-                if (!value) {
-                    addLog(`❌ ${key} es requerido`, 'error');
-                    return;
-                }
+            const batch = writeBatch(db);
+            
+            // Crear documentos vacíos para inicializar colecciones
+            for (const collectionName of collections) {
+                const docRef = doc(db, collectionName, '_init');
+                batch.set(docRef, {
+                    _createdAt: serverTimestamp(),
+                    _type: 'init'
+                });
             }
             
+            await batch.commit();
+            
+            // Eliminar los documentos de inicialización
+            const deleteBatch = writeBatch(db);
+            for (const collectionName of collections) {
+                const docRef = doc(db, collectionName, '_init');
+                deleteBatch.delete(docRef);
+            }
+            
+            await deleteBatch.commit();
+            
+            logMessage(`${collections.length} colecciones creadas correctamente`, 'success');
+        }
+
+        // Función para crear usuario admin
+        async function createAdminUser() {
+            logMessage('Creando usuario administrador...', 'info');
+            
             try {
-                await initializeDatabase(config);
+                // Crear usuario con email y contraseña
+                const userCredential = await createUserWithEmailAndPassword(
+                    auth, 
+                    'admin@pasteleria.com', 
+                    'Admin123'
+                );
+                
+                // Guardar información adicional en Firestore
+                await setDoc(doc(db, 'users', userCredential.user.uid), {
+                    email: 'admin@pasteleria.com',
+                    nombre: 'Administrador',
+                    rol: 'admin',
+                    createdAt: serverTimestamp(),
+                    activo: true
+                });
+                
+                logMessage('Usuario administrador creado: admin@pasteleria.com / Admin123', 'success');
+                logMessage('IMPORTANTE: Cambie estas credenciales después del primer inicio de sesión', 'warning');
+                
             } catch (error) {
-                // Error already logged in initializeDatabase
+                if (error.code === 'auth/email-already-in-use') {
+                    logMessage('Usuario admin ya existe', 'info');
+                } else {
+                    throw error;
+                }
+            }
+        }
+
+        // Función para insertar datos de ejemplo
+        async function insertSampleData() {
+            logMessage('Insertando datos de ejemplo...', 'info');
+            
+            // Datos de ejemplo para insumos
+            const insumosEjemplo = [
+                {
+                    id: 'insumo_harina',
+                    nombre: 'Harina de Trigo',
+                    unidad: 'kg',
+                    stockActual: 5,
+                    stockMinimo: 10,
+                    costoUnitario: 1.20,
+                    unidadCosto: 'kg',
+                    categoria: 'Materia Prima',
+                    proveedor: 'Proveedor A',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                },
+                {
+                    id: 'insumo_azucar',
+                    nombre: 'Azúcar Blanca',
+                    unidad: 'kg',
+                    stockActual: 3,
+                    stockMinimo: 8,
+                    costoUnitario: 0.90,
+                    unidadCosto: 'kg',
+                    categoria: 'Materia Prima',
+                    proveedor: 'Proveedor B',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                },
+                {
+                    id: 'insumo_huevos',
+                    nombre: 'Huevos',
+                    unidad: 'u',
+                    stockActual: 24,
+                    stockMinimo: 48,
+                    costoUnitario: 0.25,
+                    unidadCosto: 'u',
+                    categoria: 'Materia Prima',
+                    proveedor: 'Proveedor C',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                },
+                {
+                    id: 'insumo_mantequilla',
+                    nombre: 'Mantequilla',
+                    unidad: 'g',
+                    stockActual: 1000,
+                    stockMinimo: 2000,
+                    costoUnitario: 0.015,
+                    unidadCosto: 'g',
+                    categoria: 'Materia Prima',
+                    proveedor: 'Proveedor A',
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                }
+            ];
+            
+            // Insertar insumos
+            for (const insumo of insumosEjemplo) {
+                await setDoc(doc(db, 'insumos', insumo.id), insumo);
+            }
+            
+            logMessage(`${insumosEjemplo.length} insumos de ejemplo creados`, 'success');
+            
+            // Datos de ejemplo para recetas
+            const recetasEjemplo = [
+                {
+                    id: 'receta_pastel_chocolate',
+                    nombre: 'Pastel de Chocolate Clásico',
+                    descripcion: 'Pastel de chocolate esponjoso con cobertura de ganache',
+                    porciones: 12,
+                    dificultad: 'Media',
+                    tiempoPreparacion: 90, // minutos
+                    ingredientes: [
+                        { insumoId: 'insumo_harina', nombre: 'Harina de Trigo', cantidad: 500, unidad: 'g' },
+                        { insumoId: 'insumo_azucar', nombre: 'Azúcar Blanca', cantidad: 300, unidad: 'g' },
+                        { insumoId: 'insumo_huevos', nombre: 'Huevos', cantidad: 6, unidad: 'u' },
+                        { insumoId: 'insumo_mantequilla', nombre: 'Mantequilla', cantidad: 200, unidad: 'g' }
+                    ],
+                    instrucciones: [
+                        'Precalentar el horno a 180°C',
+                        'Mezclar los ingredientes secos',
+                        'Batir los huevos con el azúcar',
+                        'Incorporar la mantequilla derretida',
+                        'Hornear por 45 minutos'
+                    ],
+                    costoTotal: 0, // Se calculará dinámicamente
+                    costoPorPorcion: 0, // Se calculará dinámicamente
+                    activa: true,
+                    createdAt: serverTimestamp(),
+                    updatedAt: serverTimestamp()
+                }
+            ];
+            
+            // Insertar recetas
+            for (const receta of recetasEjemplo) {
+                await setDoc(doc(db, 'recetas', receta.id), receta);
+            }
+            
+            logMessage(`${recetasEjemplo.length} recetas de ejemplo creadas`, 'success');
+            logMessage('Datos de ejemplo insertados correctamente', 'success');
+        }
+
+        // Verificar estado del setup al cargar la página
+        document.addEventListener('DOMContentLoaded', async () => {
+            const isSetupCompleted = await checkSetup();
+            
+            if (!isSetupCompleted) {
+                setupForm.addEventListener('submit', async (e) => {
+                    e.preventDefault();
+                    
+                    // Obtener valores del formulario
+                    const config = {
+                        apiKey: document.getElementById('apiKey').value.trim(),
+                        authDomain: document.getElementById('authDomain').value.trim(),
+                        projectId: document.getElementById('projectId').value.trim(),
+                        storageBucket: document.getElementById('storageBucket').value.trim(),
+                        messagingSenderId: document.getElementById('messagingSenderId').value.trim(),
+                        appId: document.getElementById('appId').value.trim()
+                    };
+                    
+                    // Validar que todos los campos estén completos
+                    if (Object.values(config).some(value => !value)) {
+                        logMessage('Por favor complete todos los campos', 'error');
+                        return;
+                    }
+                    
+                    // Deshabilitar botón durante la configuración
+                    setupBtn.disabled = true;
+                    setupBtn.textContent = 'Configurando...';
+                    
+                    try {
+                        await initializeDatabase(config);
+                    } catch (error) {
+                        logMessage(`Error durante la configuración: ${error.message}`, 'error');
+                        setupBtn.disabled = false;
+                        setupBtn.textContent = '👉 Inicializar Base de Datos';
+                    }
+                });
             }
         });
 
-        // Initialize page
-        document.addEventListener('DOMContentLoaded', async () => {
-            const isSetup = await checkSetupStatus();
-            if (!isSetup) {
-                addLog('✅ Listo para configurar el sistema');
+        // Agregar funcionalidad para copiar credenciales de ejemplo (solo para desarrollo)
+        document.addEventListener('DOMContentLoaded', () => {
+            // Solo para desarrollo - NO usar en producción
+            const isLocalhost = window.location.hostname === 'localhost' || 
+                               window.location.hostname === '127.0.0.1';
+            
+            if (isLocalhost) {
+                const demoBtn = document.createElement('button');
+                demoBtn.type = 'button';
+                demoBtn.textContent = 'Usar credenciales de ejemplo (solo desarrollo)';
+                demoBtn.style.cssText = `
+                    margin-top: 10px;
+                    background: #ff9800;
+                    color: white;
+                    border: none;
+                    padding: 10px 15px;
+                    border-radius: 8px;
+                    cursor: pointer;
+                    font-size: 14px;
+                    width: 100%;
+                `;
+                demoBtn.onclick = () => {
+                    document.getElementById('apiKey').value = 'AIzaSyDemoKeyForDevelopmentOnly123';
+                    document.getElementById('authDomain').value = 'demo-pasteleria.firebaseapp.com';
+                    document.getElementById('projectId').value = 'demo-pasteleria';
+                    document.getElementById('storageBucket').value = 'demo-pasteleria.appspot.com';
+                    document.getElementById('messagingSenderId').value = '123456789012';
+                    document.getElementById('appId').value = '1:123456789012:web:abc123def456';
+                    
+                    logMessage('Credenciales de ejemplo cargadas (solo para desarrollo)', 'warning');
+                };
+                
             }
         });
     </script>
