@@ -23,7 +23,7 @@
         
         .container {
             width: 100%;
-            max-width: 800px;
+            max-width: 900px;
             background-color: white;
             border-radius: 15px;
             box-shadow: 0 10px 30px rgba(0, 0, 0, 0.1);
@@ -42,11 +42,6 @@
             margin-bottom: 10px;
         }
         
-        .header p {
-            opacity: 0.9;
-            font-size: 16px;
-        }
-        
         .content {
             padding: 30px;
         }
@@ -55,14 +50,28 @@
             background-color: #f8f9fa;
             border-left: 5px solid #D2691E;
             padding: 20px;
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             border-radius: 0 8px 8px 0;
+        }
+        
+        .setup-block.warning {
+            border-left-color: #ff9800;
+            background-color: #fff3cd;
+        }
+        
+        .setup-block.success {
+            border-left-color: #4CAF50;
+            background-color: #d4edda;
         }
         
         .setup-block h2 {
             color: #8B4513;
             margin-bottom: 15px;
             font-size: 20px;
+        }
+        
+        .setup-block.warning h2 {
+            color: #856404;
         }
         
         .form-group {
@@ -121,12 +130,16 @@
             box-shadow: none;
         }
         
+        .btn-warning {
+            background: linear-gradient(90deg, #ff9800 0%, #ffb74d 100%);
+        }
+        
         .logs-container {
             background-color: #1a1a1a;
             color: #f0f0f0;
             padding: 20px;
             border-radius: 8px;
-            margin-top: 30px;
+            margin-top: 20px;
             max-height: 300px;
             overflow-y: auto;
             font-family: 'Courier New', monospace;
@@ -152,14 +165,34 @@
             color: #2196F3;
         }
         
+        .log-warning {
+            color: #ff9800;
+        }
+        
         .alert {
-            padding: 20px;
-            background-color: #ff9800;
-            color: white;
+            padding: 15px;
             border-radius: 8px;
             text-align: center;
-            font-size: 18px;
+            font-size: 16px;
             margin-bottom: 20px;
+        }
+        
+        .alert-success {
+            background-color: #d4edda;
+            color: #155724;
+            border: 1px solid #c3e6cb;
+        }
+        
+        .alert-warning {
+            background-color: #fff3cd;
+            color: #856404;
+            border: 1px solid #ffeaa7;
+        }
+        
+        .alert-danger {
+            background-color: #f8d7da;
+            color: #721c24;
+            border: 1px solid #f5c6cb;
         }
         
         .steps {
@@ -225,6 +258,30 @@
         .hidden {
             display: none;
         }
+        
+        .code-block {
+            background-color: #2d2d2d;
+            color: #f8f8f2;
+            padding: 15px;
+            border-radius: 5px;
+            font-family: 'Courier New', monospace;
+            font-size: 14px;
+            overflow-x: auto;
+            margin: 15px 0;
+        }
+        
+        .instructions {
+            margin: 20px 0;
+        }
+        
+        .instructions ol {
+            margin-left: 20px;
+            margin-bottom: 15px;
+        }
+        
+        .instructions li {
+            margin-bottom: 10px;
+        }
     </style>
 </head>
 <body>
@@ -237,17 +294,19 @@
         <div class="content">
             <div class="steps">
                 <div class="step active">1. Credenciales</div>
-                <div class="step">2. Inicializar BD</div>
-                <div class="step">3. Completado</div>
+                <div class="step">2. Reglas Firebase</div>
+                <div class="step">3. Inicializar BD</div>
+                <div class="step">4. Completado</div>
             </div>
             
-            <div id="alreadyConfigured" class="alert hidden">
+            <div id="alreadyConfigured" class="alert alert-success hidden">
                 ✅ Sistema ya inicializado. Puedes cerrar esta página y acceder a la aplicación principal.
             </div>
             
             <div id="setupForm">
+                <!-- Paso 1: Credenciales Firebase -->
                 <div class="setup-block">
-                    <h2>Configuración de Firebase</h2>
+                    <h2>1. Configuración de Firebase</h2>
                     <p>Ingresa las credenciales de tu proyecto Firebase. Puedes obtenerlas desde Firebase Console > Configuración del proyecto > Tus aplicaciones.</p>
                     
                     <div class="form-group">
@@ -279,14 +338,100 @@
                         <label for="appId">App ID</label>
                         <input type="text" id="appId" placeholder="Ej: 1:123456789012:web:abcd1234">
                     </div>
-                    
-                    <button id="initBtn" class="btn">🔧 Inicializar Base de Datos</button>
                 </div>
+                
+                <!-- Paso 2: Configurar Reglas de Firestore -->
+                <div id="rulesBlock" class="setup-block warning hidden">
+                    <h2>⚠️ 2. Configurar Reglas de Firestore (OBLIGATORIO)</h2>
+                    
+                    <div class="alert alert-warning">
+                        <strong>Error detectado:</strong> Las reglas de seguridad de Firebase están bloqueando el acceso.
+                    </div>
+                    
+                    <div class="instructions">
+                        <p><strong>Sigue estos pasos para configurar las reglas:</strong></p>
+                        <ol>
+                            <li>Ve a la <a href="https://console.firebase.google.com/" target="_blank">Firebase Console</a></li>
+                            <li>Selecciona tu proyecto: <strong id="projectIdDisplay"></strong></li>
+                            <li>En el menú izquierdo, haz clic en "Firestore Database"</li>
+                            <li>Haz clic en la pestaña "Reglas"</li>
+                            <li>Reemplaza TODO el código con este:</li>
+                        </ol>
+                        
+                        <div class="code-block">
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    match /{document=**} {
+      allow read, write: if true;
+    }
+  }
+}
+                        </div>
+                        
+                        <ol start="6">
+                            <li>Haz clic en "Publicar"</li>
+                            <li>Espera 30 segundos y haz clic en el botón de abajo</li>
+                        </ol>
+                        
+                        <div class="alert alert-warning">
+                            <strong>⚠️ IMPORTANTE:</strong> Estas reglas son solo para la configuración inicial. 
+                            Después de completar el setup, debes cambiarlas por reglas seguras.
+                        </div>
+                    </div>
+                    
+                    <button id="retrySetupBtn" class="btn btn-warning">🔄 Reintentar Configuración</button>
+                </div>
+                
+                <!-- Botón para continuar -->
+                <button id="continueBtn" class="btn">👉 Continuar con la Configuración</button>
                 
                 <div class="logs-container">
                     <div id="logs">
                         <div class="log-item log-info">⏳ Esperando configuración...</div>
                     </div>
+                </div>
+            </div>
+            
+            <!-- Reglas de seguridad finales -->
+            <div id="finalRules" class="setup-block success hidden">
+                <h2>🔒 Configurar Reglas de Seguridad Finales</h2>
+                <p>Ahora que el sistema está configurado, debes cambiar las reglas de Firestore por estas más seguras:</p>
+                
+                <div class="code-block">
+rules_version = '2';
+service cloud.firestore {
+  match /databases/{database}/documents {
+    // Permite acceso solo a usuarios autenticados
+    match /{document=**} {
+      allow read, write: if request.auth != null;
+    }
+    
+    // La configuración del sistema es pública para verificar
+    match /systemConfig/setup {
+      allow read: if true;
+      allow write: if false;
+    }
+  }
+}
+                </div>
+                
+                <div class="instructions">
+                    <p><strong>Pasos:</strong></p>
+                    <ol>
+                        <li>Ve a Firebase Console > Firestore Database > Reglas</li>
+                        <li>Reemplaza las reglas temporales con el código de arriba</li>
+                        <li>Haz clic en "Publicar"</li>
+                        <li>¡Listo! El sistema está completamente configurado y seguro</li>
+                    </ol>
+                </div>
+                
+                <div class="alert alert-success">
+                    ✅ Sistema configurado correctamente. Ahora puedes acceder a la aplicación principal con:
+                    <br><strong>Email:</strong> admin@pasteleria.com
+                    <br><strong>Contraseña:</strong> admin123
+                    <br><br>
+                    <a href="app.html" class="btn" style="width: auto; display: inline-block;">🚀 Ir a la Aplicación</a>
                 </div>
             </div>
         </div>
@@ -306,18 +451,23 @@
           messagingSenderId: "322101534324",
           appId: "1:322101534324:web:e95dee5189edd3309ffb21"
         };
-        
         // Referencias globales
         let db;
         let auth;
         let setupCompleted = false;
+        let retryCount = 0;
+        const maxRetries = 3;
         
         // Elementos DOM
         const alreadyConfiguredEl = document.getElementById('alreadyConfigured');
         const setupFormEl = document.getElementById('setupForm');
-        const initBtn = document.getElementById('initBtn');
+        const continueBtn = document.getElementById('continueBtn');
+        const retrySetupBtn = document.getElementById('retrySetupBtn');
+        const rulesBlock = document.getElementById('rulesBlock');
+        const finalRules = document.getElementById('finalRules');
         const logsEl = document.getElementById('logs');
         const steps = document.querySelectorAll('.step');
+        const projectIdDisplay = document.getElementById('projectIdDisplay');
         
         // Verificar si el sistema ya está configurado
         async function checkIfConfigured() {
@@ -342,7 +492,8 @@
                         // Actualizar pasos
                         steps[0].classList.add('completed');
                         steps[1].classList.add('completed');
-                        steps[2].classList.add('completed', 'active');
+                        steps[2].classList.add('completed');
+                        steps[3].classList.add('completed', 'active');
                     } else {
                         // Usar la configuración guardada en el formulario
                         document.getElementById('apiKey').value = config.firebaseConfig.apiKey;
@@ -356,7 +507,7 @@
                     }
                 }
             } catch (error) {
-                addLog("⚠️ No se encontró configuración previa. Proceder con nueva configuración.", "info");
+                addLog("ℹ️ No se encontró configuración previa. Proceder con nueva configuración.", "info");
             }
         }
         
@@ -364,9 +515,32 @@
         function addLog(message, type = "info") {
             const logItem = document.createElement('div');
             logItem.className = `log-item log-${type}`;
-            logItem.textContent = `[${new Date().toLocaleTimeString()}] ${message}`;
+            
+            const timestamp = new Date().toLocaleTimeString();
+            const icon = type === 'success' ? '✅' : 
+                        type === 'error' ? '❌' : 
+                        type === 'warning' ? '⚠️' : 'ℹ️';
+            
+            logItem.textContent = `[${timestamp}] ${icon} ${message}`;
             logsEl.appendChild(logItem);
             logsEl.scrollTop = logsEl.scrollHeight;
+        }
+        
+        // Mostrar paso de reglas de seguridad
+        function showRulesStep() {
+            const projectId = document.getElementById('projectId').value;
+            if (!projectId) {
+                alert("Por favor, ingresa el Project ID primero");
+                return;
+            }
+            
+            projectIdDisplay.textContent = projectId;
+            rulesBlock.classList.remove('hidden');
+            continueBtn.classList.add('hidden');
+            
+            // Actualizar pasos
+            steps[0].classList.add('completed');
+            steps[1].classList.add('active');
         }
         
         // Inicializar Firebase y base de datos
@@ -383,13 +557,13 @@
             for (const key in firebaseConfig) {
                 if (!firebaseConfig[key]) {
                     addLog(`❌ Falta completar el campo: ${key}`, "error");
-                    return;
+                    return false;
                 }
             }
             
             // Deshabilitar botón mientras se ejecuta
-            initBtn.disabled = true;
-            initBtn.textContent = "⏳ Inicializando...";
+            continueBtn.disabled = true;
+            continueBtn.textContent = "⏳ Inicializando...";
             
             try {
                 addLog("🔗 Conectando con Firebase...", "info");
@@ -401,17 +575,31 @@
                 db = firebase.firestore();
                 auth = firebase.auth();
                 
+                // Configurar timeout para Firestore
+                db.settings({
+                    ignoreUndefinedProperties: true
+                });
+                
                 // Actualizar pasos
                 steps[0].classList.add('completed');
-                steps[1].classList.add('active');
+                steps[1].classList.add('completed');
+                steps[2].classList.add('active');
                 
                 addLog("✅ Firebase inicializado correctamente", "success");
                 
                 // Crear colecciones y documentos
-                await createCollections();
+                const collectionsCreated = await createCollections();
+                if (!collectionsCreated) {
+                    showRulesStep();
+                    return false;
+                }
                 
                 // Crear usuario admin inicial
-                await createAdminUser();
+                const adminCreated = await createAdminUser();
+                if (!adminCreated) {
+                    showRulesStep();
+                    return false;
+                }
                 
                 // Insertar datos de ejemplo
                 await insertSampleData();
@@ -420,7 +608,8 @@
                 await db.collection('systemConfig').doc('setup').set({
                     setupCompleted: true,
                     configuredAt: firebase.firestore.FieldValue.serverTimestamp(),
-                    version: "1.0.0"
+                    version: "1.0.0",
+                    adminEmail: 'admin@pasteleria.com'
                 });
                 
                 // Guardar configuración en localStorage para uso futuro
@@ -430,22 +619,42 @@
                 }));
                 
                 // Actualizar pasos
-                steps[1].classList.add('completed');
-                steps[2].classList.add('completed', 'active');
+                steps[2].classList.add('completed');
+                steps[3].classList.add('completed', 'active');
                 
                 addLog("✅ Configuración completada exitosamente!", "success");
                 addLog("🎉 Sistema listo para usar. Ahora puedes acceder a la aplicación principal.", "info");
                 
                 // Mostrar credenciales de admin
                 addLog("📋 Credenciales de administrador: admin@pasteleria.com / admin123", "info");
-                addLog("⚠️ IMPORTANTE: Cambia estas credenciales después del primer inicio de sesión", "info");
+                addLog("⚠️ IMPORTANTE: Cambia estas credenciales después del primer inicio de sesión", "warning");
                 
-                initBtn.textContent = "✅ Configuración Completada";
+                // Ocultar formulario y mostrar reglas finales
+                setupFormEl.classList.add('hidden');
+                finalRules.classList.remove('hidden');
+                
+                return true;
                 
             } catch (error) {
                 addLog(`❌ Error: ${error.message}`, "error");
-                initBtn.disabled = false;
-                initBtn.textContent = "🔧 Inicializar Base de Datos";
+                
+                // Verificar si es error de permisos
+                if (error.message.includes('Missing or insufficient permissions') || 
+                    error.message.includes('PERMISSION_DENIED')) {
+                    
+                    if (retryCount < maxRetries) {
+                        retryCount++;
+                        addLog(`🔄 Reintentando... (Intento ${retryCount}/${maxRetries})`, "warning");
+                        setTimeout(initializeDatabase, 2000);
+                    } else {
+                        showRulesStep();
+                    }
+                } else {
+                    continueBtn.disabled = false;
+                    continueBtn.textContent = "👉 Continuar con la Configuración";
+                }
+                
+                return false;
             }
         }
         
@@ -461,48 +670,74 @@
                 'shoppingList'
             ];
             
-            for (const collectionName of collections) {
-                try {
+            try {
+                // Primero, verificar si podemos escribir en Firestore
+                const testDoc = db.collection('systemConfig').doc('test');
+                await testDoc.set({
+                    test: true,
+                    timestamp: firebase.firestore.FieldValue.serverTimestamp()
+                });
+                await testDoc.delete();
+                
+                addLog("✅ Permisos de Firestore verificados", "success");
+                
+                for (const collectionName of collections) {
                     // Crear un documento temporal para asegurar que la colección existe
-                    await db.collection(collectionName).doc('_temp').set({
-                        created: firebase.firestore.FieldValue.serverTimestamp()
+                    const tempDoc = db.collection(collectionName).doc('_temp');
+                    await tempDoc.set({
+                        created: firebase.firestore.FieldValue.serverTimestamp(),
+                        test: true
                     });
                     
                     // Eliminar el documento temporal
-                    await db.collection(collectionName).doc('_temp').delete();
+                    await tempDoc.delete();
                     
                     addLog(`✅ Colección '${collectionName}' creada`, "success");
-                } catch (error) {
-                    addLog(`⚠️ Colección '${collectionName}': ${error.message}`, "info");
                 }
+                return true;
+            } catch (error) {
+                addLog(`❌ Error creando colecciones: ${error.message}`, "error");
+                return false;
             }
         }
         
         // Crear usuario administrador inicial
         async function createAdminUser() {
             try {
-                // Crear usuario con email y contraseña
-                const userCredential = await auth.createUserWithEmailAndPassword(
-                    'admin@pasteleria.com',
-                    'admin123'
-                );
-                
-                // Guardar información adicional en Firestore
-                await db.collection('users').doc(userCredential.user.uid).set({
-                    email: 'admin@pasteleria.com',
-                    name: 'Administrador',
-                    role: 'admin',
-                    createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                });
-                
-                addLog("✅ Usuario administrador creado: admin@pasteleria.com", "success");
-            } catch (error) {
-                // Si el usuario ya existe, solo actualizamos la información
-                if (error.code === 'auth/email-already-in-use') {
-                    addLog("⚠️ Usuario administrador ya existe", "info");
-                } else {
-                    addLog(`❌ Error creando usuario admin: ${error.message}`, "error");
+                // Primero, verificar si el usuario ya existe
+                try {
+                    const userCredential = await auth.signInWithEmailAndPassword(
+                        'admin@pasteleria.com',
+                        'admin123'
+                    );
+                    
+                    addLog("✅ Usuario administrador ya existe", "success");
+                    return true;
+                } catch (signInError) {
+                    // Si no existe, crearlo
+                    if (signInError.code === 'auth/user-not-found') {
+                        const userCredential = await auth.createUserWithEmailAndPassword(
+                            'admin@pasteleria.com',
+                            'admin123'
+                        );
+                        
+                        // Guardar información adicional en Firestore
+                        await db.collection('users').doc(userCredential.user.uid).set({
+                            email: 'admin@pasteleria.com',
+                            name: 'Administrador',
+                            role: 'admin',
+                            createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                        });
+                        
+                        addLog("✅ Usuario administrador creado: admin@pasteleria.com", "success");
+                        return true;
+                    } else {
+                        throw signInError;
+                    }
                 }
+            } catch (error) {
+                addLog(`❌ Error con usuario admin: ${error.message}`, "error");
+                return false;
             }
         }
         
@@ -528,52 +763,108 @@
                         unitCost: 1.8,
                         costUnit: "kg",
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    },
+                    {
+                        name: "Huevos",
+                        unit: "u",
+                        currentStock: 24,
+                        minStock: 12,
+                        unitCost: 0.25,
+                        costUnit: "u",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    },
+                    {
+                        name: "Mantequilla",
+                        unit: "kg",
+                        currentStock: 2,
+                        minStock: 1,
+                        unitCost: 4.5,
+                        costUnit: "kg",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
                     }
                 ];
                 
                 for (const ingredient of ingredients) {
-                    const docRef = await db.collection('ingredients').add(ingredient);
+                    await db.collection('ingredients').add(ingredient);
                     addLog(`✅ Insumo creado: ${ingredient.name}`, "success");
                 }
                 
-                // 2. Insertar 1 receta de ejemplo
+                // 2. Insertar recetas de ejemplo
                 // Primero necesitamos obtener el ID de los insumos recién creados
                 const ingredientsSnapshot = await db.collection('ingredients').get();
-                const ingredientIds = [];
+                const ingredientMap = {};
                 ingredientsSnapshot.forEach(doc => {
-                    ingredientIds.push(doc.id);
+                    const data = doc.data();
+                    ingredientMap[data.name] = doc.id;
                 });
                 
-                if (ingredientIds.length >= 2) {
-                    const recipe = {
+                const recipes = [
+                    {
                         name: "Pastel de Chocolate Básico",
                         description: "Pastel de chocolate esponjoso con cobertura",
                         portions: 8,
                         ingredients: [
                             {
-                                ingredientId: ingredientIds[0],
+                                ingredientId: ingredientMap["Harina de Trigo"],
                                 name: "Harina de Trigo",
                                 quantity: 0.5,
                                 unit: "kg"
                             },
                             {
-                                ingredientId: ingredientIds[1],
+                                ingredientId: ingredientMap["Azúcar Blanca"],
                                 name: "Azúcar Blanca",
                                 quantity: 0.3,
                                 unit: "kg"
+                            },
+                            {
+                                ingredientId: ingredientMap["Huevos"],
+                                name: "Huevos",
+                                quantity: 4,
+                                unit: "u"
+                            },
+                            {
+                                ingredientId: ingredientMap["Mantequilla"],
+                                name: "Mantequilla",
+                                quantity: 0.25,
+                                unit: "kg"
                             }
                         ],
-                        instructions: "1. Mezclar todos los ingredientes secos\n2. Agregar los huevos y la mantequilla\n3. Hornear a 180°C por 40 minutos",
+                        instructions: "1. Precalentar horno a 180°C\n2. Mezclar todos los ingredientes secos\n3. Batir los huevos y agregar la mantequilla derretida\n4. Combinar todo y hornear por 40 minutos",
                         createdAt: firebase.firestore.FieldValue.serverTimestamp()
-                    };
-                    
+                    },
+                    {
+                        name: "Galletas de Mantequilla",
+                        description: "Galletas crujientes de mantequilla",
+                        portions: 24,
+                        ingredients: [
+                            {
+                                ingredientId: ingredientMap["Harina de Trigo"],
+                                name: "Harina de Trigo",
+                                quantity: 0.4,
+                                unit: "kg"
+                            },
+                            {
+                                ingredientId: ingredientMap["Mantequilla"],
+                                name: "Mantequilla",
+                                quantity: 0.2,
+                                unit: "kg"
+                            }
+                        ],
+                        instructions: "1. Mezclar la mantequilla con la harina\n2. Formar bolitas y hornear a 170°C por 15 minutos",
+                        createdAt: firebase.firestore.FieldValue.serverTimestamp()
+                    }
+                ];
+                
+                for (const recipe of recipes) {
                     await db.collection('recipes').add(recipe);
-                    addLog("✅ Receta creada: Pastel de Chocolate Básico", "success");
+                    addLog(`✅ Receta creada: ${recipe.name}`, "success");
                 }
                 
                 addLog("✅ Datos de ejemplo insertados correctamente", "success");
+                return true;
             } catch (error) {
-                addLog(`⚠️ Error insertando datos de ejemplo: ${error.message}`, "info");
+                addLog(`⚠️ Error insertando datos de ejemplo: ${error.message}`, "warning");
+                return false;
             }
         }
         
@@ -581,8 +872,20 @@
         window.addEventListener('DOMContentLoaded', () => {
             checkIfConfigured();
             
-            // Configurar el botón de inicialización
-            initBtn.addEventListener('click', initializeDatabase);
+            // Configurar el botón de continuar
+            continueBtn.addEventListener('click', () => {
+                initializeDatabase();
+            });
+            
+            // Configurar el botón de reintentar
+            retrySetupBtn.addEventListener('click', () => {
+                rulesBlock.classList.add('hidden');
+                continueBtn.classList.remove('hidden');
+                continueBtn.disabled = false;
+                continueBtn.textContent = "👉 Continuar con la Configuración";
+                addLog("🔄 Reintentando configuración...", "info");
+                initializeDatabase();
+            });
         });
     </script>
     
