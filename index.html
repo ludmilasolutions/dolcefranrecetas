@@ -6,18 +6,14 @@
     <title>🍰 Pastelería Dolcefran - Sistema de Gestión</title>
     <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
     
-    <!-- PWA Meta Tags Mejorados -->
+    <!-- PWA Meta Tags -->
     <meta name="theme-color" content="#FF66B2">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
     <meta name="apple-mobile-web-app-title" content="Pastelería Dolcefran">
-    <link rel="apple-touch-icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🍰</text></svg>">
     <meta name="mobile-web-app-capable" content="yes">
     <meta name="application-name" content="Pastelería Dolcefran">
     <meta name="description" content="Sistema de gestión integral para pastelería">
-    
-    <!-- Manifest.json embebido -->
-    <link rel="manifest" id="app-manifest">
     
     <style>
         /* ===== VARIABLES Y RESET ===== */
@@ -1832,15 +1828,11 @@
         const installPrompt = document.getElementById('installPrompt');
         const installNowBtn = document.getElementById('installNowBtn');
         const installLaterBtn = document.getElementById('installLaterBtn');
-        const appManifest = document.getElementById('app-manifest');
         
         // ===== INICIALIZACIÓN =====
         document.addEventListener('DOMContentLoaded', () => {
             // Crear fondo decorativo de cupcakes
             createCupcakeBackground();
-            
-            // Configurar manifest para PWA
-            setupManifest();
             
             // Inicializar Firebase
             initializeFirebase();
@@ -1848,8 +1840,8 @@
             // Inicializar eventos
             initializeEventListeners();
             
-            // Verificar si ya está instalada
-            checkIfInstalled();
+            // Crear manifest dinámico para PWA
+            createDynamicManifest();
         });
         
         // ===== FUNCIONES DE INICIALIZACIÓN =====
@@ -1868,7 +1860,7 @@
             }
         }
         
-        function setupManifest() {
+        function createDynamicManifest() {
             // Crear un manifest válido para PWA
             const manifest = {
                 "name": "Pastelería Dolcefran",
@@ -1892,52 +1884,16 @@
                         "type": "image/svg+xml",
                         "purpose": "any maskable"
                     }
-                ],
-                "categories": ["business", "productivity", "food"],
-                "shortcuts": [
-                    {
-                        "name": "Nueva Receta",
-                        "short_name": "Receta",
-                        "description": "Crear nueva receta",
-                        "url": "/?new-recipe",
-                        "icons": [{
-                            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>📒</text></svg>",
-                            "sizes": "96x96"
-                        }]
-                    },
-                    {
-                        "name": "Registrar Producción",
-                        "short_name": "Producción",
-                        "description": "Registrar nueva producción",
-                        "url": "/?new-production",
-                        "icons": [{
-                            "src": "data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'><text y='.9em' font-size='90'>🏭</text></svg>",
-                            "sizes": "96x96"
-                        }]
-                    }
                 ]
             };
             
-            // Convertir manifest a data URL
-            const manifestString = JSON.stringify(manifest);
-            const manifestDataUrl = 'data:application/manifest+json,' + encodeURIComponent(manifestString);
+            // Crear elemento link para el manifest
+            const link = document.createElement('link');
+            link.rel = 'manifest';
+            link.href = 'data:application/manifest+json,' + encodeURIComponent(JSON.stringify(manifest));
+            document.head.appendChild(link);
             
-            // Establecer el href del manifest
-            appManifest.href = manifestDataUrl;
-            
-            console.log('Manifest configurado para PWA');
-        }
-        
-        function checkIfInstalled() {
-            // Verificar si la app ya está instalada
-            if (window.matchMedia('(display-mode: standalone)').matches || 
-                window.navigator.standalone === true) {
-                console.log('La aplicación ya está instalada');
-                installButton.style.display = 'none';
-                installPromptShown = true;
-                return true;
-            }
-            return false;
+            console.log('Manifest PWA creado dinámicamente');
         }
         
         function initializeEventListeners() {
@@ -2026,15 +1982,20 @@
                 e.preventDefault();
                 deferredPrompt = e;
                 
-                // Mostrar botón de instalación inmediatamente
-                installButton.style.display = 'block';
+                // Mostrar botón de instalación después de 3 segundos
+                setTimeout(() => {
+                    if (deferredPrompt) {
+                        installButton.style.display = 'block';
+                        showToast('📱 ¡Puedes instalar esta aplicación!', 'info', 3000);
+                    }
+                }, 3000);
                 
-                // Mostrar el prompt personalizado después de 3 segundos
+                // Mostrar prompt personalizado después de 5 segundos
                 setTimeout(() => {
                     if (!installPromptShown && deferredPrompt) {
                         showInstallPrompt();
                     }
-                }, 3000);
+                }, 5000);
             });
             
             window.addEventListener('appinstalled', () => {
@@ -2061,13 +2022,7 @@
                         installButton.style.display = 'none';
                         installPrompt.style.display = 'none';
                         installPromptShown = true;
-                        showToast('¡Aplicación instalada con éxito!', 'success');
-                    } else {
-                        showToast('Instalación cancelada', 'info');
-                        // Volver a mostrar después de 1 hora
-                        localStorage.setItem('installPromptDismissed', Date.now());
                     }
-                    
                     deferredPrompt = null;
                 } catch (error) {
                     console.error('Error al instalar:', error);
@@ -2089,7 +2044,6 @@
                         installPrompt.style.display = 'none';
                         installPromptShown = true;
                     } else {
-                        // Volver a mostrar después de 1 hora
                         localStorage.setItem('installPromptDismissed', Date.now());
                     }
                     
@@ -2103,7 +2057,6 @@
             installLaterBtn?.addEventListener('click', () => {
                 installPrompt.style.display = 'none';
                 installPromptShown = true;
-                // Volver a mostrar después de 24 horas
                 localStorage.setItem('installPromptDismissed', Date.now());
             });
             
@@ -2141,9 +2094,6 @@
         function showAppScreen() {
             loginScreen.classList.add('d-none');
             appScreen.style.display = 'flex';
-            
-            // Después de mostrar la app, verificar instalación
-            setTimeout(checkInstallPrompt, 2000);
         }
         
         // ===== CONFIGURACIÓN DE FIREBASE =====
@@ -2153,7 +2103,7 @@
                 if (!firebase.apps.length) {
                     firebase.initializeApp(firebaseConfig);
                 } else {
-                    firebase.app(); // Si ya está inicializado, usa esa instancia
+                    firebase.app();
                 }
                 
                 // Inicializar servicios
@@ -2211,7 +2161,6 @@
                 const userCredential = await auth.signInWithEmailAndPassword(email, password);
                 currentUser = userCredential.user;
                 
-                // Verificar que el sistema esté configurado
                 const isConfigured = await checkSystemConfiguration();
                 if (!isConfigured) {
                     await auth.signOut();
@@ -2261,47 +2210,1036 @@
             }
         }
         
-        // ===== PWA - INSTALACIÓN =====
-        function showInstallPrompt() {
-            // Verificar si ya se mostró recientemente
-            const lastDismissed = localStorage.getItem('installPromptDismissed');
-            if (lastDismissed) {
-                const hoursSinceDismissed = (Date.now() - parseInt(lastDismissed)) / (1000 * 60 * 60);
-                if (hoursSinceDismissed < 24) {
-                    return; // No mostrar si se despidió hace menos de 24 horas
+        // ===== CARGA DE DATOS =====
+        function loadSectionData(sectionId) {
+            switch(sectionId) {
+                case 'dashboard':
+                    loadDashboardData();
+                    break;
+                case 'ingredients':
+                    loadIngredients();
+                    break;
+                case 'recipes':
+                    loadRecipes();
+                    break;
+                case 'production':
+                    loadProductions();
+                    break;
+                case 'shopping':
+                    loadShoppingList();
+                    break;
+                case 'movements':
+                    loadMovements();
+                    break;
+            }
+        }
+        
+        async function loadDashboardData() {
+            try {
+                // Cargar insumos
+                const ingredientsSnapshot = await db.collection('ingredients').get();
+                appState.ingredients = [];
+                ingredientsSnapshot.forEach(doc => {
+                    appState.ingredients.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Cargar recetas
+                const recipesSnapshot = await db.collection('recipes').get();
+                appState.recipes = [];
+                recipesSnapshot.forEach(doc => {
+                    appState.recipes.push({
+                        id: doc.id,
+                        ...doc.data()
+                    });
+                });
+                
+                // Cargar producciones de hoy
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                const productionsSnapshot = await db.collection('productions')
+                    .where('date', '>=', today)
+                    .orderBy('date', 'desc')
+                    .get();
+                appState.productions = [];
+                productionsSnapshot.forEach(doc => {
+                    const data = doc.data();
+                    appState.productions.push({
+                        id: doc.id,
+                        ...data,
+                        date: data.date ? data.date.toDate() : new Date()
+                    });
+                });
+                
+                // Actualizar estadísticas
+                document.getElementById('totalIngredients').textContent = appState.ingredients.length;
+                document.getElementById('totalRecipes').textContent = appState.recipes.length;
+                document.getElementById('totalProductions').textContent = appState.productions.length;
+                
+                // Calcular insumos con stock bajo
+                const lowStockItems = appState.ingredients.filter(i => i.currentStock < i.minStock);
+                document.getElementById('lowStockCount').textContent = lowStockItems.length;
+                
+                // Mostrar lista de stock bajo
+                const lowStockList = document.getElementById('lowStockList');
+                lowStockList.innerHTML = '';
+                
+                lowStockItems.forEach(item => {
+                    const row = document.createElement('tr');
+                    row.className = 'low-stock';
+                    row.innerHTML = `
+                        <td><strong>${item.name}</strong></td>
+                        <td>${item.currentStock} ${item.unit}</td>
+                        <td>${item.minStock} ${item.unit}</td>
+                        <td><span class="badge badge-danger">STOCK BAJO</span></td>
+                    `;
+                    lowStockList.appendChild(row);
+                });
+                
+                if (lowStockItems.length === 0) {
+                    lowStockList.innerHTML = `
+                        <tr>
+                            <td colspan="4" class="text-center" style="padding: 40px; color: var(--gris);">
+                                🎉 ¡Todo el stock está en niveles adecuados!
+                            </td>
+                        </tr>
+                    `;
                 }
-            }
-            
-            // Verificar si ya está instalada
-            if (checkIfInstalled()) {
-                return;
-            }
-            
-            // Verificar si hay un prompt disponible
-            if (!deferredPrompt) {
-                return;
-            }
-            
-            // Mostrar prompt
-            installPrompt.style.display = 'flex';
-            installPromptShown = true;
-            
-            console.log('📱 Mostrando prompt de instalación');
-        }
-        
-        function checkInstallPrompt() {
-            // Verificar si debemos mostrar el prompt
-            if (!checkIfInstalled() && deferredPrompt && !installPromptShown) {
-                setTimeout(() => {
-                    showInstallPrompt();
-                }, 3000);
+                
+                // Calcular ganancias
+                await calculateProfits();
+                
+            } catch (error) {
+                console.error('Error cargando datos del dashboard:', error);
+                showToast('Error cargando datos del dashboard', 'danger');
             }
         }
         
-        // [El resto del código JavaScript se mantiene igual que en la versión anterior...]
-        // Nota: Para mantener la respuesta concisa, el resto del código JavaScript
-        // (funciones de carga de datos, gestión, etc.) se mantiene igual.
-        // Solo se muestran las partes modificadas para la PWA.
+        async function calculateProfits() {
+            try {
+                // Obtener producciones del mes actual
+                const now = new Date();
+                const firstDayOfMonth = new Date(now.getFullYear(), now.getMonth(), 1);
+                const today = new Date();
+                today.setHours(0, 0, 0, 0);
+                
+                // Producciones de hoy
+                const todaySnapshot = await db.collection('productions')
+                    .where('date', '>=', today)
+                    .get();
+                
+                // Producciones del mes
+                const monthSnapshot = await db.collection('productions')
+                    .where('date', '>=', firstDayOfMonth)
+                    .get();
+                
+                let profitToday = 0;
+                let profitMonth = 0;
+                let totalSalesMonth = 0;
+                let totalCostMonth = 0;
+                
+                // Calcular ganancias de hoy
+                todaySnapshot.forEach(doc => {
+                    const production = doc.data();
+                    if (production.profit) {
+                        profitToday += production.profit;
+                    }
+                });
+                
+                // Calcular ganancias del mes y margen
+                monthSnapshot.forEach(doc => {
+                    const production = doc.data();
+                    if (production.totalSellingPrice && production.totalCost) {
+                        profitMonth += production.profit || 0;
+                        totalSalesMonth += production.totalSellingPrice || 0;
+                        totalCostMonth += production.totalCost || 0;
+                    }
+                });
+                
+                // Calcular margen de ganancia
+                const profitMargin = totalSalesMonth > 0 ? 
+                    ((totalSalesMonth - totalCostMonth) / totalSalesMonth * 100).toFixed(1) : 0;
+                
+                // Actualizar UI
+                document.getElementById('profitToday').textContent = `$${profitToday.toFixed(2)}`;
+                document.getElementById('profitToday').className = profitToday >= 0 ? 
+                    'amount profit-positive' : 'amount profit-negative';
+                
+                document.getElementById('profitMonth').textContent = `$${profitMonth.toFixed(2)}`;
+                document.getElementById('profitMonth').className = profitMonth >= 0 ? 
+                    'amount profit-positive' : 'amount profit-negative';
+                
+                document.getElementById('profitMargin').textContent = `${profitMargin}%`;
+                document.getElementById('profitMargin').className = profitMargin >= 0 ? 
+                    'amount profit-positive' : 'amount profit-negative';
+                
+                // Actualizar lista de producciones con ganancia
+                const profitList = document.getElementById('profitList');
+                profitList.innerHTML = '';
+                
+                // Tomar las últimas 5 producciones
+                const recentProductions = appState.productions.slice(0, 5);
+                
+                recentProductions.forEach(production => {
+                    const profit = production.profit || 0;
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${production.recipeName}</td>
+                        <td>${production.quantity}</td>
+                        <td>$${production.totalCost?.toFixed(2) || '0.00'}</td>
+                        <td>$${production.totalSellingPrice?.toFixed(2) || '0.00'}</td>
+                        <td>
+                            <span class="${profit >= 0 ? 'profit-positive' : 'profit-negative'}">
+                                $${profit.toFixed(2)}
+                            </span>
+                        </td>
+                    `;
+                    profitList.appendChild(row);
+                });
+                
+                if (recentProductions.length === 0) {
+                    profitList.innerHTML = `
+                        <tr>
+                            <td colspan="5" class="text-center" style="padding: 30px; color: var(--gris);">
+                                No hay producciones registradas hoy
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Error calculando ganancias:', error);
+            }
+        }
+        
+        async function loadIngredients() {
+            try {
+                const ingredientsList = document.getElementById('ingredientsList');
+                ingredientsList.innerHTML = '<tr><td colspan="6" class="loading">Cargando insumos...</td></tr>';
+                
+                const snapshot = await db.collection('ingredients').orderBy('name').get();
+                appState.ingredients = [];
+                ingredientsList.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const ingredient = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    appState.ingredients.push(ingredient);
+                    
+                    const row = document.createElement('tr');
+                    if (ingredient.currentStock < ingredient.minStock) {
+                        row.className = 'low-stock';
+                    }
+                    
+                    row.innerHTML = `
+                        <td><strong>${ingredient.name}</strong></td>
+                        <td>${ingredient.unit}</td>
+                        <td>${ingredient.currentStock} ${ingredient.unit}</td>
+                        <td>${ingredient.minStock} ${ingredient.unit}</td>
+                        <td>$${ingredient.unitCost.toFixed(2)}/${ingredient.costUnit}</td>
+                        <td>
+                            <button class="btn btn-rosa btn-sm" onclick="editIngredient('${ingredient.id}')">✏️ Editar</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteIngredient('${ingredient.id}')">🗑️ Eliminar</button>
+                        </td>
+                    `;
+                    
+                    ingredientsList.appendChild(row);
+                });
+                
+                if (snapshot.empty) {
+                    ingredientsList.innerHTML = '<tr><td colspan="6" class="text-center">No hay insumos registrados</td></tr>';
+                }
+                
+            } catch (error) {
+                console.error('Error cargando insumos:', error);
+                showToast('Error cargando insumos', 'danger');
+            }
+        }
+        
+        async function loadRecipes() {
+            try {
+                const recipesList = document.getElementById('recipesList');
+                recipesList.innerHTML = '<tr><td colspan="7" class="loading">Cargando recetas...</td></tr>';
+                
+                const snapshot = await db.collection('recipes').orderBy('name').get();
+                appState.recipes = [];
+                recipesList.innerHTML = '';
+                
+                for (const doc of snapshot.docs) {
+                    const recipe = {
+                        id: doc.id,
+                        ...doc.data()
+                    };
+                    
+                    // Calcular costo total de la receta
+                    let totalCost = 0;
+                    if (recipe.ingredients && recipe.ingredients.length > 0) {
+                        for (const item of recipe.ingredients) {
+                            const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
+                            if (ingredient) {
+                                totalCost += (item.quantity || 0) * (ingredient.unitCost || 0);
+                            }
+                        }
+                    }
+                    
+                    const portions = recipe.portions || 1;
+                    const costPerPortion = portions > 0 ? totalCost / portions : 0;
+                    const profitPerPortion = (recipe.sellingPrice || 0) - costPerPortion;
+                    
+                    recipe.totalCost = totalCost;
+                    recipe.costPerPortion = costPerPortion;
+                    recipe.profitPerPortion = profitPerPortion;
+                    appState.recipes.push(recipe);
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${recipe.name}</strong></td>
+                        <td>${recipe.description || 'Sin descripción'}</td>
+                        <td>${recipe.portions}</td>
+                        <td>$${totalCost.toFixed(2)}</td>
+                        <td>$${(recipe.sellingPrice || 0).toFixed(2)}</td>
+                        <td>
+                            <span class="${profitPerPortion >= 0 ? 'profit-positive' : 'profit-negative'}">
+                                $${profitPerPortion.toFixed(2)}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-rosa btn-sm" onclick="viewRecipe('${recipe.id}')">👁️ Ver</button>
+                            <button class="btn btn-warning btn-sm" onclick="editRecipe('${recipe.id}')">✏️ Editar</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteRecipe('${recipe.id}')">🗑️ Eliminar</button>
+                        </td>
+                    `;
+                    
+                    recipesList.appendChild(row);
+                }
+                
+                if (snapshot.empty) {
+                    recipesList.innerHTML = '<tr><td colspan="7" class="text-center">No hay recetas registradas</td></tr>';
+                }
+                
+            } catch (error) {
+                console.error('Error cargando recetas:', error);
+                showToast('Error cargando recetas', 'danger');
+            }
+        }
+        
+        async function loadProductions() {
+            try {
+                const productionsList = document.getElementById('productionsList');
+                productionsList.innerHTML = '<tr><td colspan="7" class="loading">Cargando producciones...</td></tr>';
+                
+                const snapshot = await db.collection('productions')
+                    .orderBy('date', 'desc')
+                    .limit(50)
+                    .get();
+                
+                productionsList.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const production = {
+                        id: doc.id,
+                        ...data,
+                        date: data.date ? data.date.toDate() : new Date()
+                    };
+                    
+                    const date = production.date;
+                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5);
+                    const profit = production.profit || 0;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formattedDate}</td>
+                        <td>${production.recipeName}</td>
+                        <td>${production.quantity}</td>
+                        <td>$${production.totalCost ? production.totalCost.toFixed(2) : '0.00'}</td>
+                        <td>$${production.totalSellingPrice ? production.totalSellingPrice.toFixed(2) : '0.00'}</td>
+                        <td>
+                            <span class="${profit >= 0 ? 'profit-positive' : 'profit-negative'}">
+                                $${profit.toFixed(2)}
+                            </span>
+                        </td>
+                        <td>
+                            <button class="btn btn-danger btn-sm" onclick="deleteProduction('${production.id}')">🗑️ Eliminar</button>
+                        </td>
+                    `;
+                    
+                    productionsList.appendChild(row);
+                });
+                
+                if (snapshot.empty) {
+                    productionsList.innerHTML = '<tr><td colspan="7" class="text-center">No hay producciones registradas</td></tr>';
+                }
+                
+            } catch (error) {
+                console.error('Error cargando producciones:', error);
+                showToast('Error cargando producciones', 'danger');
+            }
+        }
+        
+        async function loadShoppingList() {
+            try {
+                const shoppingListEl = document.getElementById('shoppingList');
+                shoppingListEl.innerHTML = '<tr><td colspan="6" class="loading">Generando lista de compras...</td></tr>';
+                
+                // Obtener insumos con stock bajo
+                const lowStockItems = appState.ingredients.filter(i => i.currentStock < i.minStock);
+                shoppingListEl.innerHTML = '';
+                
+                lowStockItems.forEach(item => {
+                    const quantityToBuy = item.minStock - item.currentStock;
+                    const estimatedCost = quantityToBuy * item.unitCost;
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td><strong>${item.name}</strong></td>
+                        <td>${item.currentStock} ${item.unit}</td>
+                        <td>${item.minStock} ${item.unit}</td>
+                        <td>${quantityToBuy.toFixed(2)} ${item.unit}</td>
+                        <td>$${estimatedCost.toFixed(2)}</td>
+                        <td>
+                            <button class="btn btn-success btn-sm" onclick="markAsPurchased('${item.id}', ${quantityToBuy})">✅ Comprar</button>
+                        </td>
+                    `;
+                    
+                    shoppingListEl.appendChild(row);
+                });
+                
+                if (lowStockItems.length === 0) {
+                    shoppingListEl.innerHTML = `
+                        <tr>
+                            <td colspan="6" class="text-center" style="padding: 40px;">
+                                🎉 ¡Todo el stock está en niveles adecuados!
+                            </td>
+                        </tr>
+                    `;
+                }
+                
+            } catch (error) {
+                console.error('Error cargando lista de compras:', error);
+                showToast('Error cargando lista de compras', 'danger');
+            }
+        }
+        
+        async function loadMovements() {
+            try {
+                const movementsList = document.getElementById('movementsList');
+                movementsList.innerHTML = '<tr><td colspan="5" class="loading">Cargando movimientos...</td></tr>';
+                
+                const filter = document.getElementById('movementFilter').value;
+                let query = db.collection('stockMovements').orderBy('date', 'desc').limit(100);
+                
+                if (filter !== 'all') {
+                    query = query.where('type', '==', filter);
+                }
+                
+                const snapshot = await query.get();
+                movementsList.innerHTML = '';
+                
+                snapshot.forEach(doc => {
+                    const data = doc.data();
+                    const movement = {
+                        id: doc.id,
+                        ...data,
+                        date: data.date ? data.date.toDate() : new Date()
+                    };
+                    
+                    const date = movement.date;
+                    const formattedDate = date.toLocaleDateString() + ' ' + date.toLocaleTimeString().slice(0, 5);
+                    
+                    const typeBadge = movement.type === 'ingreso' 
+                        ? '<span class="badge badge-success">INGRESO</span>'
+                        : '<span class="badge badge-danger">EGRESO</span>';
+                    
+                    const row = document.createElement('tr');
+                    row.innerHTML = `
+                        <td>${formattedDate}</td>
+                        <td>${movement.ingredientName}</td>
+                        <td>${typeBadge}</td>
+                        <td>${movement.quantity} ${movement.unit}</td>
+                        <td>${movement.reason}</td>
+                    `;
+                    
+                    movementsList.appendChild(row);
+                });
+                
+                if (snapshot.empty) {
+                    movementsList.innerHTML = '<tr><td colspan="5" class="text-center">No hay movimientos registrados</td></tr>';
+                }
+                
+            } catch (error) {
+                console.error('Error cargando movimientos:', error);
+                showToast('Error cargando movimientos', 'danger');
+            }
+        }
+        
+        // ===== FUNCIONES DE GESTIÓN =====
+        // Funciones para insumos
+        function editIngredient(ingredientId) {
+            const ingredient = appState.ingredients.find(i => i.id === ingredientId);
+            if (!ingredient) return;
+            
+            const modal = document.getElementById('ingredientModal');
+            const form = document.getElementById('ingredientForm');
+            
+            form.reset();
+            document.getElementById('ingredientId').value = ingredient.id;
+            document.getElementById('ingredientName').value = ingredient.name || '';
+            document.getElementById('ingredientUnit').value = ingredient.unit || '';
+            document.getElementById('ingredientCostUnit').value = ingredient.costUnit || '';
+            document.getElementById('currentStock').value = ingredient.currentStock || 0;
+            document.getElementById('minStock').value = ingredient.minStock || 0;
+            document.getElementById('unitCost').value = ingredient.unitCost || 0;
+            
+            document.getElementById('ingredientModalTitle').innerHTML = '<span>✏️</span> Editar Insumo';
+            
+            modal.classList.add('active');
+        }
+        
+        async function saveIngredient() {
+            try {
+                const form = document.getElementById('ingredientForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                const ingredientData = {
+                    name: document.getElementById('ingredientName').value,
+                    unit: document.getElementById('ingredientUnit').value,
+                    costUnit: document.getElementById('ingredientCostUnit').value,
+                    currentStock: parseFloat(document.getElementById('currentStock').value) || 0,
+                    minStock: parseFloat(document.getElementById('minStock').value) || 0,
+                    unitCost: parseFloat(document.getElementById('unitCost').value) || 0,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const ingredientId = document.getElementById('ingredientId').value;
+                
+                if (ingredientId) {
+                    await db.collection('ingredients').doc(ingredientId).update(ingredientData);
+                    showToast('Insumo actualizado correctamente', 'success');
+                } else {
+                    ingredientData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('ingredients').add(ingredientData);
+                    showToast('Insumo creado correctamente', 'success');
+                }
+                
+                closeModal('ingredientModal');
+                loadIngredients();
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error guardando insumo:', error);
+                showToast('Error guardando insumo', 'danger');
+            }
+        }
+        
+        async function deleteIngredient(ingredientId) {
+            if (!confirm('¿Estás seguro de eliminar este insumo?')) return;
+            
+            try {
+                await db.collection('ingredients').doc(ingredientId).delete();
+                showToast('Insumo eliminado correctamente', 'success');
+                loadIngredients();
+                loadDashboardData();
+            } catch (error) {
+                console.error('Error eliminando insumo:', error);
+                showToast('Error eliminando insumo', 'danger');
+            }
+        }
+        
+        // Funciones para recetas
+        function addIngredientRowToRecipe(ingredient = null) {
+            const container = document.getElementById('recipeIngredientsContainer');
+            const rowId = 'ingredient-' + Date.now() + '-' + Math.random().toString(36).substr(2, 9);
+            
+            let selectOptions = '<option value="">Seleccionar insumo</option>';
+            appState.ingredients.forEach(ing => {
+                const unit = ing.unit || '';
+                const isSelected = ingredient && ingredient.ingredientId === ing.id;
+                selectOptions += `<option value="${ing.id}" data-unit="${unit}" ${isSelected ? 'selected' : ''}>${ing.name} (${unit})</option>`;
+            });
+            
+            const row = document.createElement('div');
+            row.className = 'ingredient-row';
+            row.id = rowId;
+            row.innerHTML = `
+                <select class="form-control ingredient-select" onchange="updateIngredientUnit(this)" required>
+                    ${selectOptions}
+                </select>
+                <input type="number" class="form-control ingredient-quantity" step="0.01" min="0.01" placeholder="Cantidad" value="${ingredient ? (ingredient.quantity || '') : ''}" required>
+                <span class="ingredient-unit">${ingredient && ingredient.unit ? ingredient.unit : ''}</span>
+                <button type="button" class="remove-ingredient" onclick="removeIngredientRow('${rowId}')">🗑️</button>
+            `;
+            
+            container.appendChild(row);
+            if (ingredient && ingredient.ingredientId) {
+                const select = row.querySelector('.ingredient-select');
+                updateIngredientUnit(select);
+            }
+            updateRecipeCostPreview();
+        }
+        
+        function removeIngredientRow(rowId) {
+            const row = document.getElementById(rowId);
+            if (row) row.remove();
+            updateRecipeCostPreview();
+        }
+        
+        function updateIngredientUnit(selectElement) {
+            const selectedOption = selectElement.options[selectElement.selectedIndex];
+            if (!selectedOption) return;
+            
+            const unit = selectedOption.getAttribute('data-unit') || '';
+            const row = selectElement.closest('.ingredient-row');
+            if (!row) return;
+            
+            const unitSpan = row.querySelector('.ingredient-unit');
+            if (unitSpan) {
+                unitSpan.textContent = unit;
+            }
+            updateRecipeCostPreview();
+        }
+        
+        function updateRecipeCostPreview() {
+            const costSummary = document.getElementById('recipeCostSummary');
+            const totalCostPreview = document.getElementById('totalCostPreview');
+            const costPerPortionPreview = document.getElementById('costPerPortionPreview');
+            const profitPerPortionPreview = document.getElementById('profitPerPortionPreview');
+            
+            let totalCost = 0;
+            const ingredientRows = document.querySelectorAll('.ingredient-row');
+            
+            ingredientRows.forEach(row => {
+                const select = row.querySelector('.ingredient-select');
+                const quantityInput = row.querySelector('.ingredient-quantity');
+                
+                if (select && select.value && quantityInput && quantityInput.value) {
+                    const ingredient = appState.ingredients.find(i => i.id === select.value);
+                    if (ingredient) {
+                        const quantity = parseFloat(quantityInput.value) || 0;
+                        totalCost += quantity * (ingredient.unitCost || 0);
+                    }
+                }
+            });
+            
+            const portions = parseInt(document.getElementById('recipePortions').value) || 0;
+            const sellingPrice = parseFloat(document.getElementById('sellingPrice').value) || 0;
+            const costPerPortion = portions > 0 ? totalCost / portions : 0;
+            const profitPerPortion = sellingPrice - costPerPortion;
+            
+            totalCostPreview.textContent = `$${totalCost.toFixed(2)}`;
+            costPerPortionPreview.textContent = `$${costPerPortion.toFixed(2)}`;
+            
+            const profitClass = profitPerPortion >= 0 ? 'profit-positive' : 'profit-negative';
+            profitPerPortionPreview.textContent = `$${profitPerPortion.toFixed(2)}`;
+            profitPerPortionPreview.className = profitClass;
+            
+            costSummary.classList.remove('d-none');
+        }
+        
+        function editRecipe(recipeId) {
+            const recipe = appState.recipes.find(r => r.id === recipeId);
+            if (!recipe) return;
+            
+            const modal = document.getElementById('recipeModal');
+            const form = document.getElementById('recipeForm');
+            
+            form.reset();
+            document.getElementById('recipeId').value = recipe.id;
+            document.getElementById('recipeName').value = recipe.name || '';
+            document.getElementById('recipeDescription').value = recipe.description || '';
+            document.getElementById('recipePortions').value = recipe.portions || 1;
+            document.getElementById('sellingPrice').value = recipe.sellingPrice || 0;
+            document.getElementById('recipeInstructions').value = recipe.instructions || '';
+            
+            // Limpiar ingredientes
+            const container = document.getElementById('recipeIngredientsContainer');
+            container.innerHTML = '';
+            
+            // Añadir ingredientes existentes
+            if (recipe.ingredients && recipe.ingredients.length > 0) {
+                recipe.ingredients.forEach(ingredient => {
+                    addIngredientRowToRecipe(ingredient);
+                });
+            } else {
+                addIngredientRowToRecipe();
+            }
+            
+            document.getElementById('recipeModalTitle').innerHTML = '<span>✏️</span> Editar Receta';
+            
+            updateRecipeCostPreview();
+            
+            modal.classList.add('active');
+        }
+        
+        async function saveRecipe() {
+            try {
+                const form = document.getElementById('recipeForm');
+                if (!form.checkValidity()) {
+                    form.reportValidity();
+                    return;
+                }
+                
+                // Recopilar datos de ingredientes
+                const ingredients = [];
+                const ingredientRows = document.querySelectorAll('.ingredient-row');
+                
+                ingredientRows.forEach(row => {
+                    const select = row.querySelector('.ingredient-select');
+                    const quantityInput = row.querySelector('.ingredient-quantity');
+                    const unitSpan = row.querySelector('.ingredient-unit');
+                    
+                    if (select && select.value && quantityInput && quantityInput.value) {
+                        const ingredient = appState.ingredients.find(i => i.id === select.value);
+                        if (ingredient) {
+                            ingredients.push({
+                                ingredientId: select.value,
+                                ingredientName: ingredient.name || '',
+                                quantity: parseFloat(quantityInput.value) || 0,
+                                unit: (unitSpan && unitSpan.textContent) || ingredient.unit || ''
+                            });
+                        }
+                    }
+                });
+                
+                if (ingredients.length === 0) {
+                    showToast('Debe agregar al menos un ingrediente', 'warning');
+                    return;
+                }
+                
+                const recipeData = {
+                    name: document.getElementById('recipeName').value,
+                    description: document.getElementById('recipeDescription').value,
+                    portions: parseInt(document.getElementById('recipePortions').value) || 1,
+                    sellingPrice: parseFloat(document.getElementById('sellingPrice').value) || 0,
+                    ingredients: ingredients,
+                    instructions: document.getElementById('recipeInstructions').value,
+                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                };
+                
+                const recipeId = document.getElementById('recipeId').value;
+                
+                if (recipeId) {
+                    await db.collection('recipes').doc(recipeId).update(recipeData);
+                    showToast('Receta actualizada correctamente', 'success');
+                } else {
+                    recipeData.createdAt = firebase.firestore.FieldValue.serverTimestamp();
+                    await db.collection('recipes').add(recipeData);
+                    showToast('Receta creada correctamente', 'success');
+                }
+                
+                closeModal('recipeModal');
+                loadRecipes();
+                loadDashboardData();
+                
+            } catch (error) {
+                console.error('Error guardando receta:', error);
+                showToast('Error guardando receta', 'danger');
+            }
+        }
+        
+        async function deleteRecipe(recipeId) {
+            if (!confirm('¿Estás seguro de eliminar esta receta?')) return;
+            
+            try {
+                await db.collection('recipes').doc(recipeId).delete();
+                showToast('Receta eliminada correctamente', 'success');
+                loadRecipes();
+            } catch (error) {
+                console.error('Error eliminando receta:', error);
+                showToast('Error eliminando receta', 'danger');
+            }
+        }
+        
+        function viewRecipe(recipeId) {
+            const recipe = appState.recipes.find(r => r.id === recipeId);
+            if (!recipe) return;
+            
+            let ingredientsHtml = '<ul style="margin-top: 10px;">';
+            if (recipe.ingredients && recipe.ingredients.length > 0) {
+                recipe.ingredients.forEach(ing => {
+                    ingredientsHtml += `<li>${ing.ingredientName || ''}: ${ing.quantity || 0} ${ing.unit || ''}</li>`;
+                });
+            }
+            ingredientsHtml += '</ul>';
+            
+            const profitPerPortion = recipe.profitPerPortion || 0;
+            const profitClass = profitPerPortion >= 0 ? 'profit-positive' : 'profit-negative';
+            
+            alert(`📋 ${recipe.name}\n\n📝 Descripción: ${recipe.description || 'Sin descripción'}\n🍽️ Porciones: ${recipe.portions || 0}\n💰 Precio de Venta: $${(recipe.sellingPrice || 0).toFixed(2)}\n💸 Costo Total: $${recipe.totalCost?.toFixed(2) || '0.00'}\n💸 Costo por Porción: $${recipe.costPerPortion?.toFixed(2) || '0.00'}\n💰 Ganancia por Porción: <span class="${profitClass}">$${profitPerPortion.toFixed(2)}</span>\n\n📦 Ingredientes:${ingredientsHtml}\n\n📝 Instrucciones: ${recipe.instructions || 'No especificadas'}`);
+        }
+        
+        // Funciones para producción
+        function openProductionModal() {
+            const modal = document.getElementById('productionModal');
+            const select = document.getElementById('productionRecipe');
+            
+            // Limpiar y cargar recetas
+            select.innerHTML = '<option value="">Seleccionar receta</option>';
+            appState.recipes.forEach(recipe => {
+                const option = document.createElement('option');
+                option.value = recipe.id;
+                option.textContent = recipe.name || '';
+                option.setAttribute('data-selling-price', recipe.sellingPrice || 0);
+                select.appendChild(option);
+            });
+            
+            // Limpiar formulario
+            document.getElementById('productionQuantity').value = '1';
+            document.getElementById('productionInfo').innerHTML = 'Selecciona una receta para ver los detalles';
+            document.getElementById('productionValidation').classList.add('d-none');
+            document.getElementById('productionProfit').classList.add('d-none');
+            document.getElementById('saveProductionBtn').disabled = true;
+            
+            modal.classList.add('active');
+        }
+        
+        function updateProductionInfo() {
+            const recipeId = document.getElementById('productionRecipe').value;
+            const quantity = parseInt(document.getElementById('productionQuantity').value) || 0;
+            const recipe = appState.recipes.find(r => r.id === recipeId);
+            
+            const infoDiv = document.getElementById('productionInfo');
+            const validationDiv = document.getElementById('productionValidation');
+            const profitDiv = document.getElementById('productionProfit');
+            const saveBtn = document.getElementById('saveProductionBtn');
+            
+            if (!recipe) {
+                infoDiv.innerHTML = 'Selecciona una receta para ver los detalles';
+                validationDiv.classList.add('d-none');
+                profitDiv.classList.add('d-none');
+                saveBtn.disabled = true;
+                return;
+            }
+            
+            // Calcular costos y ganancias
+            let totalCost = 0;
+            let canProduce = true;
+            let missingIngredients = [];
+            
+            // Verificar stock de ingredientes
+            if (recipe.ingredients && recipe.ingredients.length > 0) {
+                recipe.ingredients.forEach(item => {
+                    const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
+                    if (ingredient) {
+                        const neededQuantity = (item.quantity || 0) * quantity;
+                        totalCost += neededQuantity * (ingredient.unitCost || 0);
+                        
+                        if (ingredient.currentStock < neededQuantity) {
+                            canProduce = false;
+                            missingIngredients.push({
+                                name: ingredient.name || '',
+                                needed: neededQuantity,
+                                available: ingredient.currentStock || 0,
+                                unit: ingredient.unit || ''
+                            });
+                        }
+                    }
+                });
+            }
+            
+            const sellingPrice = recipe.sellingPrice || 0;
+            const totalSellingPrice = sellingPrice * quantity;
+            const profit = totalSellingPrice - totalCost;
+            
+            // Mostrar información
+            infoDiv.innerHTML = `
+                <strong>📋 ${recipe.name}</strong><br>
+                <small>Porciones: ${recipe.portions || 0}</small><br>
+                <small>Precio de venta por unidad: $${sellingPrice.toFixed(2)}</small><br>
+                <small>Costo estimado: $${totalCost.toFixed(2)}</small>
+            `;
+            
+            // Mostrar validación de stock
+            if (!canProduce) {
+                let validationHtml = '<strong>⚠️ Stock insuficiente:</strong><br>';
+                missingIngredients.forEach(ing => {
+                    validationHtml += `${ing.name}: Necesitas ${ing.needed} ${ing.unit}, tienes ${ing.available} ${ing.unit}<br>`;
+                });
+                validationDiv.innerHTML = validationHtml;
+                validationDiv.classList.remove('d-none');
+                saveBtn.disabled = true;
+            } else {
+                validationDiv.classList.add('d-none');
+                saveBtn.disabled = false;
+            }
+            
+            // Mostrar cálculo de ganancias
+            profitDiv.innerHTML = `
+                <strong>💰 Proyección de Ganancia:</strong><br>
+                Costo Total: $${totalCost.toFixed(2)}<br>
+                Venta Total: $${totalSellingPrice.toFixed(2)}<br>
+                Ganancia: <span class="${profit >= 0 ? 'profit-positive' : 'profit-negative'}">$${profit.toFixed(2)}</span>
+            `;
+            profitDiv.classList.remove('d-none');
+        }
+        
+        async function saveProduction() {
+            try {
+                const recipeId = document.getElementById('productionRecipe').value;
+                const quantity = parseInt(document.getElementById('productionQuantity').value);
+                const recipe = appState.recipes.find(r => r.id === recipeId);
+                
+                if (!recipe || quantity <= 0) {
+                    showToast('Datos inválidos', 'danger');
+                    return;
+                }
+                
+                // Calcular costos y verificar stock
+                let totalCost = 0;
+                const updates = [];
+                const movements = [];
+                
+                // Verificar stock y preparar actualizaciones
+                if (recipe.ingredients && recipe.ingredients.length > 0) {
+                    for (const item of recipe.ingredients) {
+                        const ingredient = appState.ingredients.find(i => i.id === item.ingredientId);
+                        if (ingredient) {
+                            const neededQuantity = (item.quantity || 0) * quantity;
+                            
+                            if (ingredient.currentStock < neededQuantity) {
+                                showToast(`Stock insuficiente de ${ingredient.name}`, 'danger');
+                                return;
+                            }
+                            
+                            totalCost += neededQuantity * (ingredient.unitCost || 0);
+                            
+                            // Preparar actualización de stock
+                            updates.push({
+                                docRef: db.collection('ingredients').doc(ingredient.id),
+                                data: {
+                                    currentStock: ingredient.currentStock - neededQuantity,
+                                    updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+                                }
+                            });
+                            
+                            // Preparar movimiento de stock
+                            movements.push({
+                                ingredientId: ingredient.id,
+                                ingredientName: ingredient.name || '',
+                                type: 'egreso',
+                                quantity: neededQuantity,
+                                unit: ingredient.unit || '',
+                                reason: `Producción: ${recipe.name}`,
+                                date: firebase.firestore.FieldValue.serverTimestamp(),
+                                userId: currentUser.uid
+                            });
+                        }
+                    }
+                }
+                
+                const sellingPrice = recipe.sellingPrice || 0;
+                const totalSellingPrice = sellingPrice * quantity;
+                const profit = totalSellingPrice - totalCost;
+                
+                // Ejecutar todas las actualizaciones en batch
+                const batch = db.batch();
+                
+                // Actualizar insumos
+                updates.forEach(update => {
+                    batch.update(update.docRef, update.data);
+                });
+                
+                // Registrar producción
+                const productionRef = db.collection('productions').doc();
+                const productionData = {
+                    recipeId: recipeId,
+                    recipeName: recipe.name || '',
+                    quantity: quantity,
+                    totalCost: totalCost,
+                    sellingPrice: sellingPrice,
+                    totalSellingPrice: totalSellingPrice,
+                    profit: profit,
+                    date: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                };
+                batch.set(productionRef, productionData);
+                
+                // Registrar movimientos de stock
+                movements.forEach(movement => {
+                    const movementRef = db.collection('stockMovements').doc();
+                    batch.set(movementRef, movement);
+                });
+                
+                await batch.commit();
+                
+                showToast('Producción registrada correctamente', 'success');
+                closeModal('productionModal');
+                
+                // Recargar datos
+                loadProductions();
+                loadDashboardData();
+                loadIngredients();
+                loadMovements();
+                
+            } catch (error) {
+                console.error('Error registrando producción:', error);
+                showToast('Error registrando producción', 'danger');
+            }
+        }
+        
+        async function deleteProduction(productionId) {
+            if (!confirm('¿Estás seguro de eliminar este registro de producción?')) return;
+            
+            try {
+                await db.collection('productions').doc(productionId).delete();
+                showToast('Producción eliminada correctamente', 'success');
+                loadProductions();
+                loadDashboardData();
+            } catch (error) {
+                console.error('Error eliminando producción:', error);
+                showToast('Error eliminando producción', 'danger');
+            }
+        }
+        
+        // Funciones para compras
+        async function markAsPurchased(ingredientId, quantity) {
+            const ingredient = appState.ingredients.find(i => i.id === ingredientId);
+            if (!ingredient) return;
+            
+            const purchaseQuantity = parseFloat(prompt(`Ingresa la cantidad comprada de ${ingredient.name}:`, quantity));
+            
+            if (isNaN(purchaseQuantity) || purchaseQuantity <= 0) {
+                showToast('Cantidad inválida', 'warning');
+                return;
+            }
+            
+            try {
+                // Actualizar stock
+                const newStock = (ingredient.currentStock || 0) + purchaseQuantity;
+                await db.collection('ingredients').doc(ingredientId).update({
+                    currentStock: newStock
+                });
+                
+                // Registrar movimiento de stock
+                await db.collection('stockMovements').add({
+                    ingredientId: ingredientId,
+                    ingredientName: ingredient.name || '',
+                    type: 'ingreso',
+                    quantity: purchaseQuantity,
+                    unit: ingredient.unit || '',
+                    reason: 'Compra',
+                    date: firebase.firestore.FieldValue.serverTimestamp(),
+                    userId: currentUser.uid
+                });
+                
+                showToast('Compra registrada correctamente', 'success');
+                loadShoppingList();
+                loadIngredients();
+                loadDashboardData();
+                loadMovements();
+                
+            } catch (error) {
+                console.error('Error registrando compra:', error);
+                showToast('Error registrando compra', 'danger');
+            }
+        }
         
         // ===== FUNCIONES AUXILIARES =====
         function showLoginAlert(message, type = 'danger') {
@@ -2360,6 +3298,36 @@
             }
         }
         
+        // ===== PWA - INSTALACIÓN =====
+        function showInstallPrompt() {
+            // Verificar si ya se mostró recientemente
+            const lastDismissed = localStorage.getItem('installPromptDismissed');
+            if (lastDismissed) {
+                const hoursSinceDismissed = (Date.now() - parseInt(lastDismissed)) / (1000 * 60 * 60);
+                if (hoursSinceDismissed < 24) {
+                    return;
+                }
+            }
+            
+            // Verificar si ya está instalada
+            if (window.matchMedia('(display-mode: standalone)').matches || 
+                window.navigator.standalone === true) {
+                installButton.style.display = 'none';
+                return;
+            }
+            
+            // Verificar si hay un prompt disponible
+            if (!deferredPrompt) {
+                return;
+            }
+            
+            // Mostrar prompt
+            installPrompt.style.display = 'flex';
+            installPromptShown = true;
+            
+            console.log('📱 Mostrando prompt de instalación');
+        }
+        
         // ===== FUNCIONES GLOBALES =====
         window.editIngredient = editIngredient;
         window.deleteIngredient = deleteIngredient;
@@ -2372,18 +3340,6 @@
         window.showSection = showSection;
         window.updateIngredientUnit = updateIngredientUnit;
         window.removeIngredientRow = removeIngredientRow;
-        
-        // Inicializar las funciones que faltan (deberían estar definidas en tu código original)
-        // Estas son solo declaraciones para evitar errores
-        function editIngredient() {}
-        function deleteIngredient() {}
-        function viewRecipe() {}
-        function editRecipe() {}
-        function deleteRecipe() {}
-        function deleteProduction() {}
-        function markAsPurchased() {}
-        function updateIngredientUnit() {}
-        function removeIngredientRow() {}
         
     </script>
     
