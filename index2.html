@@ -1186,6 +1186,7 @@
         
         document.addEventListener('DOMContentLoaded', async () => {
             createCupcakeBackground();
+            // Usar window.supabase directamente
             supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             await checkAuth();
             loadProducts();
@@ -1647,9 +1648,5 @@
     </script>
     
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-    <script>
-        // Inicializar cliente de Supabase después de cargar la librería
-        const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
-    </script>
 </body>
 </html>
