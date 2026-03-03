@@ -1177,10 +1177,10 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://kzjtapggtuoshxmbilbb.supabase.co';
+        const SUPABASE_URL = 'https://kzjtapggtuoshxmbilbb.db.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6anRhcGdndHVvc2h4bWJpbGJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MDM2OTgsImV4cCI6MjA4ODA3OTY5OH0.XMpTTa7Hit8cfWNLaw0nki_dhVk6_zJLD2VrBK6rmRo';
         
-        let supabase;
+        const db = db.createClient(SUPABASE_URL, SUPABASE_KEY);
         let products = [];
         let cart = [];
         let currentCategory = 'all';
@@ -1188,8 +1188,6 @@
         
         document.addEventListener('DOMContentLoaded', async () => {
             createCupcakeBackground();
-            // Usar window.supabase directamente
-            supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             await checkAuth();
             loadProducts();
         });
@@ -1207,7 +1205,7 @@
         }
         
         async function checkAuth() {
-            const { data: { session } } = await supabase.auth.getSession();
+            const { data: { session } } = await db.auth.getSession();
             if (session) {
                 currentUser = session.user;
                 showPage('admin');
@@ -1234,7 +1232,7 @@
             const email = document.getElementById('loginEmail').value;
             const password = document.getElementById('loginPassword').value;
             
-            const { error } = await supabase.auth.signInWithPassword({ email, password });
+            const { error } = await db.auth.signInWithPassword({ email, password });
             
             if (error) {
                 showAlert('loginAlert', error.message, 'danger');
@@ -1244,7 +1242,7 @@
         });
         
         async function logout() {
-            await supabase.auth.signOut();
+            await db.auth.signOut();
             currentUser = null;
             showPage('catalog');
         }
@@ -1422,7 +1420,7 @@
                 created_at: new Date().toISOString()
             };
             
-            const { error } = await supabase.from('orders').insert(orderData);
+            const { error } = await db.from('orders').insert(orderData);
             
             if (error) {
                 showAlert('checkoutAlert', 'Error al crear el pedido: ' + error.message, 'danger');
@@ -1439,8 +1437,8 @@
             loadAdminProducts();
             loadAdminOrders();
             
-            const { data: productsData } = await supabase.from('products').select('id');
-            const { data: ordersData } = await supabase.from('orders').select('status');
+            const { data: productsData } = await db.from('products').select('id');
+            const { data: ordersData } = await db.from('orders').select('status');
             
             document.getElementById('totalProducts').textContent = productsData?.length || 0;
             document.getElementById('pendingOrders').textContent = ordersData?.filter(o => o.status === 'pendiente').length || 0;
@@ -1576,10 +1574,10 @@
             
             let error;
             if (productId) {
-                ({ error } = await supabase.from('products').update(productData).eq('id', productId));
+                ({ error } = await db.from('products').update(productData).eq('id', productId));
             } else {
                 productData.created_at = new Date().toISOString();
-                ({ error } = await supabase.from('products').insert(productData));
+                ({ error } = await db.from('products').insert(productData));
             }
             
             if (error) {
@@ -1593,14 +1591,14 @@
         }
         
         async function editProduct(id) {
-            const { data } = await supabase.from('products').select('*').eq('id', id).single();
+            const { data } = await db.from('products').select('*').eq('id', id).single();
             if (data) openProductModal(data);
         }
         
         async function deleteProduct(id) {
             if (!confirm('¿Eliminar este producto?')) return;
             
-            const { error } = await supabase.from('products').delete().eq('id', id);
+            const { error } = await db.from('products').delete().eq('id', id);
             if (!error) {
                 showToast('Producto eliminado');
                 loadAdminProducts();
@@ -1609,7 +1607,7 @@
         }
         
         async function updateOrderStatus(orderId, status) {
-            const { error } = await supabase.from('orders').update({ status }).eq('id', orderId);
+            const { error } = await db.from('orders').update({ status }).eq('id', orderId);
             if (!error) {
                 showToast('Pedido actualizado');
                 loadAdminOrders();
