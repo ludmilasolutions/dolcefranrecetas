@@ -1177,10 +1177,10 @@
     </div>
 
     <script>
-        const SUPABASE_URL = 'https://kzjtapggtuoshxmbilbb.db.co';
+        const SUPABASE_URL = 'https://kzjtapggtuoshxmbilbb.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Imt6anRhcGdndHVvc2h4bWJpbGJiIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MDM2OTgsImV4cCI6MjA4ODA3OTY5OH0.XMpTTa7Hit8cfWNLaw0nki_dhVk6_zJLD2VrBK6rmRo';
         
-        const db = db.createClient(SUPABASE_URL, SUPABASE_KEY);
+        let db;
         let products = [];
         let cart = [];
         let currentCategory = 'all';
@@ -1188,6 +1188,7 @@
         
         document.addEventListener('DOMContentLoaded', async () => {
             createCupcakeBackground();
+            db = window.supabase.createClient(SUPABASE_URL, SUPABASE_KEY);
             await checkAuth();
             loadProducts();
         });
