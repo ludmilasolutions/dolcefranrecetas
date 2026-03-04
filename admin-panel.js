@@ -153,7 +153,7 @@ async function loadOrders(){
     const itemsText = (items||[]).map(it => it.quantity + 'x ' + it.product_id).join(', ');
     const p = document.createElement('div');
     p.style.border = '1px solid #eee'; p.style.padding='6px'; p.style.margin='6px 0';
-    p.innerHTML = `<strong>Pedido ${o.id}</strong> - ${o.customer_name} (${o.phone}) - Total ${o.total}€<br/><small>Items: ${itemsText}</small>`;
+    p.innerHTML = `<strong>Pedido ${o.id}</strong> - ${o.customer_name} (${o.phone}) - Total $${o.total}<br/><small>Items: ${itemsText}</small>`;
     div.appendChild(p);
   }
 }
