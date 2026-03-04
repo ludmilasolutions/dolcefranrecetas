@@ -1,11 +1,11 @@
 // Dolcefran - Frontend logic (vanilla JS, no frameworks)
-// Supabase config (fill with your actual values)
-const SUPABASE_URL = "https://dgsbeahwcruisvyuufcq.supabaseClient.co";
-const SUPABASE_ANON_KEY = "REPLACE_WITH_YOUR_ANON_KEY";
+// Supabase config
+const SUPABASE_URL = "https://dgsbeahwcruisvyuufcq.supabase.co";
+const SUPABASE_ANON_KEY = "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImRnc2JlYWh3Y3J1aXN2eXV1ZmNxIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzI1MTEzMDQsImV4cCI6MjA4ODA4NzMwNH0.lhM3Uqn4U2PeO3TtuRzlgKRGtsHPx6RgRrkFC5DUwj0";
 const STORAGE_BUCKET = "images";
 const WHATSAPP_NUMBER = "";
 
-let supabaseClientClient;
+let supabaseClient;
 let cart = [];
 
 function initSupabase(){
