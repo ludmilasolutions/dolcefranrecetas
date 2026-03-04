@@ -147,16 +147,84 @@ async function loadOrders(){
   div.innerHTML = '';
   const { data: orders, error } = await supabaseClient.from('orders').select('*').order('created_at', {ascending:false});
   if(error){ console.error(error); return; }
-  if(!orders || orders.length===0){ div.innerHTML = '<p>No hay pedidos.</p>'; return; }
+  if(!orders || orders.length===0){ 
+    div.innerHTML = '<div class="empty-state"><p>No hay pedidos aún</p></div>'; 
+    return; 
+  }
+  
   for(const o of orders){
-  const { data: items, error: ei } = await supabaseClient.from('order_items').select('*').eq('order_id', o.id);
-    const itemsText = (items||[]).map(it => it.quantity + 'x ' + it.product_id).join(', ');
-    const p = document.createElement('div');
-    p.style.border = '1px solid #eee'; p.style.padding='6px'; p.style.margin='6px 0';
-    p.innerHTML = `<strong>Pedido ${o.id}</strong> - ${o.customer_name} (${o.phone}) - Total $${o.total}<br/><small>Items: ${itemsText}</small>`;
-    div.appendChild(p);
+    const { data: items } = await supabaseClient.from('order_items').select('*').eq('order_id', o.id);
+    const date = new Date(o.created_at).toLocaleString('es-AR');
+    
+    const orderCard = document.createElement('div');
+    orderCard.className = 'order-card-admin';
+    orderCard.innerHTML = `
+      <div class="order-header-admin">
+        <div class="order-id-badge">#${o.id.slice(0, 8)}</div>
+        <div class="order-status order-status-${o.status || 'pendiente'}">${o.status || 'pendiente'}</div>
+        <div class="order-date-admin">${date}</div>
+      </div>
+      <div class="order-body-admin">
+        <div class="order-customer">
+          <div class="customer-info">
+            <span class="customer-label">Cliente:</span>
+            <span class="customer-name">${o.customer_name}</span>
+          </div>
+          <div class="customer-info">
+            <span class="customer-label">Teléfono:</span>
+            <a href="tel:${o.phone}" class="customer-phone">${o.phone}</a>
+          </div>
+          <div class="customer-info">
+            <span class="customer-label">Dirección:</span>
+            <span class="customer-address">${o.address || 'No especificada'}</span>
+          </div>
+          ${o.notes ? `
+          <div class="customer-info">
+            <span class="customer-label">Notas:</span>
+            <span class="customer-notes">${o.notes}</span>
+          </div>
+          ` : ''}
+        </div>
+        <div class="order-products-admin">
+          <h4>Productos</h4>
+          <div class="order-items-list">
+            ${(items || []).map(it => `
+              <div class="order-item-admin">
+                <span class="item-qty">${it.quantity}x</span>
+                <span class="item-name">${it.product_name}</span>
+                <span class="item-price">$ ${formatMoney(it.price * it.quantity)}</span>
+              </div>
+            `).join('')}
+          </div>
+        </div>
+        <div class="order-footer-admin">
+          <div class="order-total-admin">
+            <span>Total:</span>
+            <span class="total-amount">$ ${formatMoney(o.total)}</span>
+          </div>
+          <div class="order-actions">
+            <button class="btn-status btn-pending" onclick="updateOrderStatus('${o.id}', 'pendiente')">Pendiente</button>
+            <button class="btn-status btn-confirmed" onclick="updateOrderStatus('${o.id}', 'confirmado')">Confirmar</button>
+            <button class="btn-status btn-completed" onclick="updateOrderStatus('${o.id}', 'entregado')">Entregado</button>
+          </div>
+        </div>
+      </div>
+    `;
+    div.appendChild(orderCard);
   }
 }
+
+window.formatMoney = function(n){
+  if(n == null || isNaN(n)) return '0.00';
+  return Number(n).toLocaleString('es-AR', {minimumFractionDigits:2, maximumFractionDigits:2});
+};
+
+window.updateOrderStatus = async function(orderId, status) {
+  const { error } = await supabaseClient.from('orders').update({ status }).eq('id', orderId);
+  if(error){ console.error(error); return; }
+  showNotification('Estado actualizado');
+  await loadOrders();
+};
 
 function initListeners(){
   // login

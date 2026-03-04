@@ -257,7 +257,7 @@ window.closeCheckout = function() {
   }
 };
 
-window.submitOrder = function(e) {
+window.submitOrder = async function(e) {
   e.preventDefault();
   
   const name = document.getElementById('customer-name').value;
@@ -281,9 +281,43 @@ ${cart.map(it => `• ${it.quantity}x ${it.name} - $ ${formatMoney(it.price * it
 
 ─────────────────────`;
 
-  const whatsappNumber = '5493416667128'; // Replace with actual number
+  const whatsappNumber = '5493416667128';
   const waUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderText)}`;
   
+  // Save order to database first
+  try {
+    const orderId = crypto?.randomUUID ? crypto.randomUUID() : 'ord-' + Date.now();
+    
+    const { error: orderErr } = await supabaseClient.from('orders').insert([{ 
+      id: orderId, 
+      customer_name: name, 
+      phone: phone, 
+      address: address,
+      notes: notes || '',
+      total: total, 
+      status: 'pendiente',
+      created_at: new Date().toISOString() 
+    }]);
+    
+    if (orderErr) throw orderErr;
+    
+    // Save order items
+    const items = cart.map(it => ({ 
+      id: crypto?.randomUUID ? crypto.randomUUID() : 'it-' + Date.now() + Math.random(), 
+      order_id: orderId, 
+      product_name: it.name,
+      quantity: it.quantity, 
+      price: it.price 
+    }));
+    
+    const { error: itemsErr } = await supabaseClient.from('order_items').insert(items);
+    if (itemsErr) throw itemsErr;
+    
+  } catch(err) {
+    console.error('Error saving order:', err);
+  }
+  
+  // Open WhatsApp
   window.open(waUrl, '_blank');
   
   cart = [];
