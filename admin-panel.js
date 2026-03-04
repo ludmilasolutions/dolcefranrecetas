@@ -35,11 +35,28 @@ async function logout(){
   location.reload();
 }
 
+window.logout = logout;
+
 async function refreshUI(){
   const { data: { user } } = await supabaseClient.auth.getUser();
   const loginPanel = document.getElementById('login-panel');
   const adminPanel = document.getElementById('admin-panel');
+  
   if(user){
+    // Verificar si es admin
+    const { data: adminData } = await supabaseClient
+      .from('admins')
+      .select('*')
+      .eq('id', user.id)
+      .single();
+    
+    if (!adminData) {
+      loginPanel.innerHTML = '<p style="color:red;">Acceso denegado. No tienes permisos de administrador.</p><button onclick="logout()" class="btn">Cerrar Sesion</button>';
+      loginPanel.style.display = 'block';
+      adminPanel.style.display = 'none';
+      return;
+    }
+    
     loginPanel.style.display = 'none';
     adminPanel.style.display = 'block';
     await loadProductsList();
