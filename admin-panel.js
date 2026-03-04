@@ -36,7 +36,7 @@ async function logout(){
 }
 
 async function refreshUI(){
-  const user = supabaseClient.auth.user();
+  const { data: { user } } = await supabaseClient.auth.getUser();
   const loginPanel = document.getElementById('login-panel');
   const adminPanel = document.getElementById('admin-panel');
   if(user){
