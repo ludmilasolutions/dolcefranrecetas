@@ -1,9 +1,9 @@
 // Dolcefran - Frontend logic (vanilla JS, no frameworks)
 // Supabase config (fill with your actual values)
-const SUPABASE_URL = typeof SUPABASE_URL !== 'undefined' ? SUPABASE_URL : "https://dgsbeahwcruisvyuufcq.supabase.co";
-const SUPABASE_ANON_KEY = typeof SUPABASE_ANON_KEY !== 'undefined' ? SUPABASE_ANON_KEY : "REPLACE_WITH_YOUR_ANON_KEY";
-const STORAGE_BUCKET = typeof STORAGE_BUCKET !== 'undefined' ? STORAGE_BUCKET : "images";
-const WHATSAPP_NUMBER = typeof WHATSAPP_NUMBER !== 'undefined' ? WHATSAPP_NUMBER : "";
+const SUPABASE_URL = "https://dgsbeahwcruisvyuufcq.supabase.co";
+const SUPABASE_ANON_KEY = "REPLACE_WITH_YOUR_ANON_KEY";
+const STORAGE_BUCKET = "images";
+const WHATSAPP_NUMBER = "";
 
 let supabase;
 let cart = [];
