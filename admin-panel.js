@@ -7,14 +7,17 @@
   let supabaseClient;
 
 function initSupabase(){
-  function createClient() {
-    if (window.supabase && window.supabase.createClient) {
-      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    } else {
-      setTimeout(createClient, 100);
+  return new Promise((resolve) => {
+    function createClient() {
+      if (window.supabase && window.supabase.createClient) {
+        supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+        resolve();
+      } else {
+        setTimeout(createClient, 100);
+      }
     }
-  }
-  createClient();
+    createClient();
+  });
 }
 
 function showError(el, msg){ el.textContent = msg; }
@@ -165,7 +168,7 @@ function initListeners(){
 }
 
 async function init(){
-  initSupabase();
+  await initSupabase();
   await refreshUI();
   initListeners();
 }
