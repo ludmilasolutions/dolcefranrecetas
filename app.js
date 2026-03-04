@@ -13,7 +13,7 @@ function initSupabase(){
     console.error('Faltan configuraciones de Supabase. Establece SUPABASE_URL y SUPABASE_ANON_KEY.');
     return;
   }
-  supabaseClientClient = window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
 function formatMoney(n){
