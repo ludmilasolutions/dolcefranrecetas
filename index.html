@@ -7,7 +7,10 @@
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="style.css" />
   <!-- Supabase CDN -->
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2/dist/supabase.min.js"></script>
+  <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
+  <script>
+    console.log('Supabase loaded:', typeof window.supabase);
+  </script>
   
  </head>
 <body>
