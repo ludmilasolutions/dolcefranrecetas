@@ -121,6 +121,7 @@ async function editProduct(id){
 
 async function createProduct(e){
   e.preventDefault();
+  if(!supabaseClient){ alert('Esperando conexión...'); return; }
   const name = document.getElementById('p-name').value;
   const desc = document.getElementById('p-desc').value;
   const price = parseFloat(document.getElementById('p-price').value);
@@ -129,12 +130,11 @@ async function createProduct(e){
   if(imageInput.files && imageInput.files[0]){
     const file = imageInput.files[0];
     const path = 'products/' + Date.now() + '_' + file.name;
-    const { data: uploaded, error } = await supabase.storage.from('images').upload(path, file);
+    const { data: uploaded, error } = await supabaseClient.storage.from('images').upload(path, file);
     if(error){ console.error(error); alert('Error al subir la imagen'); return; }
-    imageUrl = uploaded ? uploaded.Key : path;
-    // get public url
-    const { publicURL } = supabase.storage.from('images').getPublicUrl(path);
-    imageUrl = publicURL;
+    imageUrl = uploaded ? uploaded.path : path;
+    const { data: urlData } = supabaseClient.storage.from('images').getPublicUrl(path);
+    imageUrl = urlData.publicUrl;
   }
   const { data, error: insErr } = await supabaseClient.from('products').insert({ name, description: desc, price, image_url: imageUrl, active: true });
   if(insErr){ console.error(insErr); alert('Error al crear producto'); return; }
