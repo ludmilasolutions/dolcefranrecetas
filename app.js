@@ -1,18 +1,19 @@
 // Dolcefran - Frontend logic (vanilla JS, no frameworks)
 // Supabase config (fill with your actual values)
-const SUPABASE_URL = "https://dgsbeahwcruisvyuufcq.supabase.co";
+const SUPABASE_URL = "https://dgsbeahwcruisvyuufcq.supabaseClient.co";
 const SUPABASE_ANON_KEY = "REPLACE_WITH_YOUR_ANON_KEY";
 const STORAGE_BUCKET = "images";
 const WHATSAPP_NUMBER = "";
 
-let supabase;
+let supabaseClientClient;
 let cart = [];
 
 function initSupabase(){
-  if(!SUPABASE_URL || !SUPABASE_ANON_KEY){
+  if(!SUPABASE_URL || !SUPABASE_ANON_KEY || SUPABASE_ANON_KEY === "REPLACE_WITH_YOUR_ANON_KEY"){
     console.error('Faltan configuraciones de Supabase. Establece SUPABASE_URL y SUPABASE_ANON_KEY.');
+    return;
   }
-  supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  supabaseClientClient = window.supabaseClient.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 }
 
 function formatMoney(n){
@@ -47,14 +48,14 @@ async function loadProducts(){
   grid.innerHTML = '';
   loader.style.display = 'block';
   try{
-    const { data, error } = await supabase.from('products').select('*').eq('active', true).order('created_at', {ascending:false});
+    const { data, error } = await supabaseClient.from('products').select('*').eq('active', true).order('created_at', {ascending:false});
     if(error){ throw error; }
     if(!data || data.length===0){ grid.innerHTML = '<p>No hay productos disponibles.</p>'; loader.style.display='none'; return; }
     const items = await Promise.all(data.map(async (p)=>{
       let img = p.image_url;
       if(img && !/^https?:\/\//i.test(img)){
         // si es path de storage, obtener URL publico
-        const { publicURL, error:err2 } = supabase.storage.from(STORAGE_BUCKET).getPublicUrl(img);
+        const { publicURL, error:err2 } = supabaseClient.storage.from(STORAGE_BUCKET).getPublicUrl(img);
         if(publicURL) img = publicURL;
       }
       return { ...p, image_url: img };
@@ -100,7 +101,7 @@ async function loadProducts(){
 function addToCartById(productId){
   // fetch product by id from already loaded data (quick fetch)
   // Fallback: fetch by query
-  supabase.from('products').select('*').eq('id', productId).single()
+  supabaseClient.from('products').select('*').eq('id', productId).single()
   .then(({ data, error }) => {
     if(error){ console.error(error); return; }
     const p = data;
@@ -225,7 +226,7 @@ async function finalizeOrder(){
     showNotification('Procesando pedido...', 3000);
     
     const orderId = crypto?.randomUUID ? crypto.randomUUID() : 'ord-' + Date.now();
-    const { data: o, error: er } = await supabase.from('orders').insert([{ 
+    const { data: o, error: er } = await supabaseClient.from('orders').insert([{ 
       id: orderId, 
       customer_name: name, 
       phone: phone || '', 
@@ -243,7 +244,7 @@ async function finalizeOrder(){
       price: it.price 
     }));
     
-    const { data: oi, error: ei } = await supabase.from('order_items').insert(items);
+    const { data: oi, error: ei } = await supabaseClient.from('order_items').insert(items);
     if(ei) throw ei;
     
     cart = [];
