@@ -207,72 +207,91 @@ async function finalizeOrder(){
     return; 
   }
   
-  const checkoutBtn = document.getElementById('btn-checkout');
-  if(checkoutBtn){
-    checkoutBtn.disabled = true;
-    checkoutBtn.innerHTML = 'Procesando...';
-  }
+  const total = cart.reduce((s, it)=> s + (parseFloat(it.price)||0) * (parseInt(it.quantity)||1), 0);
   
-  const name = prompt('Nombre del cliente:');
-  if(!name) {
-    if(checkoutBtn){
-      checkoutBtn.disabled = false;
-      checkoutBtn.innerHTML = 'Finalizar pedido';
-    }
-    return; 
+  // Create checkout modal
+  const modal = document.createElement('div');
+  modal.className = 'checkout-modal';
+  modal.innerHTML = `
+    <div class="checkout-overlay" onclick="closeCheckout()"></div>
+    <div class="checkout-content">
+      <button class="checkout-close" onclick="closeCheckout()">×</button>
+      <h2>Finalizar Pedido</h2>
+      
+      <div class="checkout-summary">
+        <h3>Tu Pedido</h3>
+        <div class="checkout-items">
+          ${cart.map(it => `
+            <div class="checkout-item">
+              <span class="checkout-item-qty">${it.quantity}x</span>
+              <span class="checkout-item-name">${it.name}</span>
+              <span class="checkout-item-price">$ ${formatMoney(it.price * it.quantity)}</span>
+            </div>
+          `).join('')}
+        </div>
+        <div class="checkout-total">
+          <span>Total:</span>
+          <span>$ ${formatMoney(total)}</span>
+        </div>
+      </div>
+      
+      <form id="checkout-form" onsubmit="submitOrder(event)">
+        <h3>Datos de entrega</h3>
+        <input type="text" id="customer-name" placeholder="Nombre completo" required />
+        <input type="tel" id="customer-phone" placeholder="Teléfono" required />
+        <input type="text" id="customer-address" placeholder="Dirección de entrega" required />
+        <textarea id="customer-notes" placeholder="Notas adicionales (opcional)" rows="2"></textarea>
+        <button type="submit" class="btn btn-primary">Enviar por WhatsApp</button>
+      </form>
+    </div>
+  `;
+  document.body.appendChild(modal);
+  setTimeout(() => modal.classList.add('show'), 10);
+}
+
+window.closeCheckout = function() {
+  const modal = document.querySelector('.checkout-modal');
+  if(modal) {
+    modal.classList.remove('show');
+    setTimeout(() => modal.remove(), 300);
   }
-  const phone = prompt('Teléfono:');
+};
+
+window.submitOrder = function(e) {
+  e.preventDefault();
+  
+  const name = document.getElementById('customer-name').value;
+  const phone = document.getElementById('customer-phone').value;
+  const address = document.getElementById('customer-address').value;
+  const notes = document.getElementById('customer-notes').value;
   
   const total = cart.reduce((s, it)=> s + (parseFloat(it.price)||0) * (parseInt(it.quantity)||1), 0);
   
-  try{
-    showNotification('Procesando pedido...', 3000);
-    
-    const orderId = crypto?.randomUUID ? crypto.randomUUID() : 'ord-' + Date.now();
-    const { data: o, error: er } = await supabaseClient.from('orders').insert([{ 
-      id: orderId, 
-      customer_name: name, 
-      phone: phone || '', 
-      total: total, 
-      created_at: new Date().toISOString() 
-    }]);
-    
-    if(er) throw er;
-    
-    const items = cart.map(it => ({ 
-      id: crypto?.randomUUID ? crypto.randomUUID() : 'it-' + Date.now() + Math.random(), 
-      order_id: orderId, 
-      product_id: it.product_id, 
-      quantity: it.quantity, 
-      price: it.price 
-    }));
-    
-    const { data: oi, error: ei } = await supabaseClient.from('order_items').insert(items);
-    if(ei) throw ei;
-    
-    cart = [];
-    saveCart(); 
-    renderCart();
-    
-    showNotification('¡Pedido realizado con éxito! 🎉', 4000);
-    
-    if(WHATSAPP_NUMBER){ 
-      const text = `Nuevo pedido Dolcefran - Id: ${orderId}\nCliente: ${name}\nTel: ${phone}\nTotal: $${formatMoney(total)}\nProductos: ${items.map(i=> i.product_id).join(',')}`; 
-      const url = `https://wa.me/${WHATSAPP_NUMBER.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(text)}`; 
-      window.open(url, '_blank'); 
-    }
-    
-  } catch(err){ 
-    console.error(err); 
-    showNotification('Error al guardar el pedido', 3000);
-    setTimeout(() => alert('Error al guardar el pedido.'), 1000);
-  } finally {
-    if(checkoutBtn){
-      checkoutBtn.disabled = false;
-      checkoutBtn.innerHTML = 'Finalizar pedido';
-    }
-  }
-}
+  const orderText = `🧁 *NUEVO PEDIDO - Dolcefran* 🧁
+
+👤 *Cliente:* ${name}
+📱 *Teléfono:* ${phone}
+📍 *Dirección:* ${address}
+${notes ? `📝 *Notas:* ${notes}` : ''}
+
+🛒 *Productos:*
+${cart.map(it => `• ${it.quantity}x ${it.name} - $ ${formatMoney(it.price * it.quantity)}`).join('\n')}
+
+💰 *TOTAL:* $ ${formatMoney(total)}
+
+─────────────────────`;
+
+  const whatsappNumber = '5493416667128'; // Replace with actual number
+  const waUrl = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent(orderText)}`;
+  
+  window.open(waUrl, '_blank');
+  
+  cart = [];
+  saveCart();
+  renderCart();
+  closeCheckout();
+  showNotification('¡Pedido enviado! Te contactaremos pronto');
+};
 
 function bindCheckout(){
   const btn = document.getElementById('btn-checkout');
