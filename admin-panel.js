@@ -24,7 +24,7 @@ async function login(){
   const password = document.getElementById('password').value;
   const panel = document.getElementById('login-error');
   try{
-    const { user, session, error } = await supabaseClient.auth.signIn({ email, password });
+    const { data, error } = await supabaseClient.auth.signInWithPassword({ email, password });
     if(error){ showError(panel, error.message); return; }
   }catch(err){ showError(panel, 'Error de autenticacion'); console.error(err); return; }
   await refreshUI();
