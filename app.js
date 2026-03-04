@@ -1,3 +1,4 @@
+'use strict';
 // Dolcefran - Frontend logic (vanilla JS, no frameworks)
 // Supabase config
 const SUPABASE_URL = "https://dgsbeahwcruisvyuufcq.supabase.co";
@@ -13,7 +14,15 @@ function initSupabase(){
     console.error('Faltan configuraciones de Supabase. Establece SUPABASE_URL y SUPABASE_ANON_KEY.');
     return;
   }
-  supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+  
+  function createClient() {
+    if (window.supabase && window.supabase.createClient) {
+      supabaseClient = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+    } else {
+      setTimeout(createClient, 100);
+    }
+  }
+  createClient();
 }
 
 function formatMoney(n){

@@ -9,7 +9,19 @@
   <!-- Supabase CDN -->
   <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
-    console.log('Supabase loaded:', typeof window.supabase);
+    // Wait for supabase to load
+    function waitForSupabase(callback, attempts = 0) {
+      if (window.supabase && window.supabase.createClient) {
+        callback();
+      } else if (attempts < 50) {
+        setTimeout(() => waitForSupabase(callback, attempts + 1), 100);
+      } else {
+        console.error('Supabase no se cargó');
+      }
+    }
+    waitForSupabase(function() {
+      console.log('Supabase listo');
+    });
   </script>
   
  </head>

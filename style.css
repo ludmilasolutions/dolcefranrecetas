@@ -940,3 +940,36 @@ button:focus-visible {
   background: var(--gold-light);
   color: var(--charcoal);
 }
+
+/* NOTIFICATION */
+.notification {
+  position: fixed;
+  bottom: 2rem;
+  left: 50%;
+  transform: translateX(-50%) translateY(100px);
+  background: linear-gradient(135deg, var(--gold) 0%, var(--gold-dark) 100%);
+  color: var(--white);
+  padding: 1rem 2rem;
+  border-radius: var(--radius);
+  font-weight: 500;
+  box-shadow: var(--shadow-gold);
+  z-index: 10000;
+  opacity: 0;
+  transition: all 0.4s cubic-bezier(0.23, 1, 0.32, 1);
+}
+
+.notification.show {
+  transform: translateX(-50%) translateY(0);
+  opacity: 1;
+}
+
+/* FOOTER */
+.footer {
+  text-align: center;
+  padding: 4rem 2rem;
+  color: var(--text-medium);
+  font-size: 0.95rem;
+  background: linear-gradient(180deg, var(--cream) 0%, var(--cream-dark) 100%);
+  border-top: var(--border-light);
+  margin-top: 4rem;
+}
