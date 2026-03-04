@@ -81,7 +81,7 @@ async function loadProducts(){
         <div class="card-body">
           <h3>${it.name}</h3>
           <p class="desc">${it.description || ''}</p>
-          <div class="price">€ ${formatMoney(it.price)}</div>
+          <div class="price">$ ${formatMoney(it.price)}</div>
           <button class="btn btn-primary btn-wave" data-id="${it.id}">
             <span>Agregar al carrito</span>
           </button>
@@ -144,10 +144,15 @@ function loadCart(){
 function renderCart(){
   const container = document.getElementById('cart-items');
   const totalEl = document.getElementById('cart-total');
+  const countEls = document.querySelectorAll('#cart-count, #cart-count-float');
   container.innerHTML = '';
   
+  // Update cart count
+  const totalQty = cart.reduce((sum, it) => sum + (it.quantity || 1), 0);
+  countEls.forEach(el => { if(el) el.textContent = totalQty; });
+  
   if(cart.length === 0){
-    container.innerHTML = '<p style="text-align:center;color:var(--text-muted);padding:1rem;">Tu carrito está vacío</p>';
+    container.innerHTML = '<div class="cart-empty-msg">Tu carrito está vacío</div>';
     totalEl.textContent = formatMoney(0);
     return;
   }
@@ -157,56 +162,44 @@ function renderCart(){
     total += (it.price || 0) * (it.quantity || 1);
     const row = document.createElement('div');
     row.className = 'cart-item';
-    row.style.opacity = '0';
-    row.style.animation = `slideUp 0.3s var(--ease-out-expo) ${idx * 0.05}s forwards`;
     row.innerHTML = `
       <img src="${it.image_url || ''}" alt="${it.name}" loading="lazy">
-      <div class="cart-item-details">
+      <div class="cart-item-info">
         <div class="cart-item-name">${it.name}</div>
+        <div class="cart-item-price">$ ${formatMoney(it.price)}</div>
+        <div class="cart-item-qty">
+          <button onclick="updateQty(${idx}, ${(it.quantity || 1) - 1})">-</button>
+          <span>${it.quantity || 1}</span>
+          <button onclick="updateQty(${idx}, ${(it.quantity || 1) + 1})">+</button>
+        </div>
       </div>
-      <div class="cart-item-controls">
-        <input type="number" min="1" value="${it.quantity}" data-idx="${idx}" />
-        <button data-idx="${idx}" class="btn-remove" title="Eliminar">×</button>
-      </div>
+      <button class="cart-item-remove" onclick="removeFromCart(${idx})" title="Eliminar">×</button>
     `;
     container.appendChild(row);
   });
   
-  // update total con animación
-  totalEl.style.opacity = '0';
-  setTimeout(() => {
-    totalEl.textContent = formatMoney(total);
-    totalEl.style.opacity = '1';
-    totalEl.style.transition = 'opacity 0.3s';
-  }, cart.length * 50);
-  
-  // event listeners for quantity changes and remove
-  container.querySelectorAll('input[type=number]').forEach(inp => {
-    inp.addEventListener('change', (e) => {
-      const idx = parseInt(e.target.getAttribute('data-idx'), 10);
-      const val = parseInt(e.target.value, 10);
-      if(Number.isFinite(idx) && Number.isFinite(val) && val>0){ 
-        cart[idx].quantity = val; 
-        saveCart(); 
-        renderCart(); 
-      }
-    });
-  });
-  
-  container.querySelectorAll('button[data-idx]').forEach(btn => {
-    btn.addEventListener('click', (e) => {
-      const idx = parseInt(e.target.getAttribute('data-idx'), 10);
-      const itemName = cart[idx]?.name;
-      cart.splice(idx,1); 
-      saveCart(); 
-      renderCart();
-      
-      if(itemName){
-        showNotification(`${itemName} eliminado del carrito`);
-      }
-    });
-  });
+  totalEl.textContent = formatMoney(total);
 }
+
+// Global functions for cart buttons
+window.updateQty = function(idx, newQty) {
+  if(newQty < 1) {
+    removeFromCart(idx);
+    return;
+  }
+  if(cart[idx]) {
+    cart[idx].quantity = newQty;
+    saveCart();
+    renderCart();
+  }
+};
+
+window.removeFromCart = function(idx) {
+  cart.splice(idx, 1);
+  saveCart();
+  renderCart();
+  showNotification('Producto eliminado');
+};
 
 async function finalizeOrder(){
   if(!cart || cart.length===0){ 
@@ -264,7 +257,7 @@ async function finalizeOrder(){
     showNotification('¡Pedido realizado con éxito! 🎉', 4000);
     
     if(WHATSAPP_NUMBER){ 
-      const text = `Nuevo pedido Dolcefran - Id: ${orderId}\nCliente: ${name}\nTel: ${phone}\nTotal: ${formatMoney(total)}€\nProductos: ${items.map(i=> i.product_id).join(',')}`; 
+      const text = `Nuevo pedido Dolcefran - Id: ${orderId}\nCliente: ${name}\nTel: ${phone}\nTotal: $${formatMoney(total)}\nProductos: ${items.map(i=> i.product_id).join(',')}`; 
       const url = `https://wa.me/${WHATSAPP_NUMBER.replace(/[^0-9]/g,'')}?text=${encodeURIComponent(text)}`; 
       window.open(url, '_blank'); 
     }

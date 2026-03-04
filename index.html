@@ -4,12 +4,12 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Dolcefran - Pasteleria premium</title>
+  <meta name="description" content="Dolcefran - Pasteleria premium con los mejores productos artesanales">
   <link rel="icon" href="data:," />
   <link rel="stylesheet" href="style.css" />
   <!-- Supabase CDN -->
   <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
   <script>
-    // Wait for supabase to load
     function waitForSupabase(callback, attempts = 0) {
       if (window.supabase && window.supabase.createClient) {
         callback();
@@ -23,23 +23,30 @@
       console.log('Supabase listo');
     });
   </script>
-  
- </head>
+</head>
 <body>
   <header class="site-header">
     <div class="container header-inner">
-      <div class="brand">Dolcefran</div>
+      <a href="/" class="brand">Dolcefran</a>
       <nav class="nav-links" aria-label="main navigation">
         <a href="#catalog">Catálogo</a>
-        <a href="#cart">Carrito</a>
+        <a href="#cart" class="cart-link">
+          Carrito
+          <span id="cart-count" class="cart-count">0</span>
+        </a>
         <a href="/admin/" target="_blank" rel="noopener">Admin</a>
       </nav>
     </div>
   </header>
 
-  <section class="hero container" aria-label="hero">
-    <h1>Pasteleria premium Dolcefran</h1>
-    <p>Delicias artesanales con ingredientes de alta calidad. Entra y descubre nuestro catálogo.</p>
+  <section class="hero" aria-label="hero">
+    <div class="hero-content container">
+      <span class="hero-tagline">Arte Dulcero</span>
+      <h1>Pasteleria Premium Dolcefran</h1>
+      <p>Delicias artesanales elaboradas con los mejores ingredientes. Cada producto es una obra maestra de sabor y textura.</p>
+      <a href="#catalog" class="btn btn-primary">Ver Catálogo</a>
+    </div>
+    <div class="hero-decoration"></div>
   </section>
 
   <main class="container" id="catalog" aria-label="catalogo">
@@ -48,17 +55,35 @@
     <section id="products" class="grid"></section>
   </main>
 
-  <aside id="cart" class="container cart" aria-label="carrito">
-    <h3>Carrito</h3>
+  <aside id="cart" class="cart-sidebar" aria-label="carrito">
+    <div class="cart-header">
+      <h3>Tu Carrito</h3>
+      <button class="cart-close" onclick="document.getElementById('cart').classList.remove('cart-open')">&times;</button>
+    </div>
     <div id="cart-items" class="cart-items"></div>
-    <div class="cart-total">Total: <span id="cart-total">0.00</span> €</div>
-    <button id="btn-checkout" class="btn btn-primary">Finalizar pedido</button>
+    <div class="cart-footer">
+      <div class="cart-total">
+        <span>Total:</span>
+        <span class="total-amount">$<span id="cart-total">0.00</span></span>
+      </div>
+      <button id="btn-checkout" class="btn btn-primary">Finalizar Pedido</button>
+    </div>
   </aside>
 
-  <footer class="container footer">
-    Dolcefran - © <span id="year"></span>
+  <div class="cart-overlay" onclick="document.getElementById('cart').classList.remove('cart-open')"></div>
+
+  <button class="cart-floating-btn" onclick="document.getElementById('cart').classList.add('cart-open')">
+    🛒 <span id="cart-count-float">0</span>
+  </button>
+
+  <footer class="footer">
+    <div class="container">
+      <p class="brand-footer">Dolcefran</p>
+      <p class="copyright">© <span id="year"></span> - Todos los derechos reservados</p>
+      <p class="footer-credit">Web creada por <a href="https://afmsolutions.com.ar/" target="_blank" rel="noopener">AFM Solutions</a></p>
+    </div>
   </footer>
 
-  <script src="app.js?v=2"></script>
+  <script src="app.js?v=3"></script>
 </body>
 </html>
