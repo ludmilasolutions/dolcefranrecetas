@@ -16,6 +16,7 @@
   const STORAGE_BUCKET   = 'images';
 
   let sb; // supabase client
+  let lb;  // lightbox
 
   function initSupabase() {
     return new Promise(resolve => {
@@ -134,6 +135,114 @@
   (function renderLoop() {
     if (dirty) { drawFrame(); dirty = false; }
     requestAnimationFrame(renderLoop);
+  })();
+
+  /* ── 17. LIGHTBOX ─────────────────────────────────── */
+  lb = (function () {
+    const el        = document.getElementById('lightbox');
+    const imgEl     = document.getElementById('lbImg');
+    const capEl     = document.getElementById('lbCaption');
+    const priceEl   = document.getElementById('lbPrice');
+    const prevBtn   = document.getElementById('lbPrev');
+    const nextBtn   = document.getElementById('lbNext');
+    const closeBtn  = document.getElementById('lbClose');
+    const thumbsEl  = document.getElementById('lbThumbs');
+    const counterEl = document.getElementById('lbCounter');
+    const backdrop  = document.getElementById('lbBackdrop');
+
+    let items   = [];
+    let current = 0;
+
+    function setItems(arr) {
+      items = arr;
+      buildThumbs();
+    }
+
+    function buildThumbs() {
+      thumbsEl.innerHTML = '';
+      items.forEach((item, i) => {
+        if (!item.src) return;
+        const t = document.createElement('img');
+        t.src = item.src; t.alt = item.name;
+        t.className = 'lb-thumb';
+        t.addEventListener('click', () => goTo(i));
+        thumbsEl.appendChild(t);
+      });
+    }
+
+    function updateThumbs() {
+      thumbsEl.querySelectorAll('.lb-thumb').forEach((t, i) => {
+        t.classList.toggle('active', i === current);
+      });
+      const active = thumbsEl.querySelector('.lb-thumb.active');
+      if (active) active.scrollIntoView({ inline: 'center', behavior: 'smooth', block: 'nearest' });
+    }
+
+    function show(idx, animate) {
+      current = ((idx % items.length) + items.length) % items.length;
+      const item = items[current];
+      if (animate) {
+        imgEl.classList.add('switching');
+        setTimeout(() => {
+          imgEl.src = item.src; imgEl.alt = item.name;
+          imgEl.classList.remove('switching');
+        }, 220);
+      } else {
+        imgEl.src = item.src; imgEl.alt = item.name;
+      }
+      capEl.textContent   = item.name;
+      priceEl.textContent = item.price
+        ? '$ ' + Number(item.price).toLocaleString('es-AR', { minimumFractionDigits: 2 })
+        : '';
+      counterEl.textContent = (current + 1) + ' / ' + items.length;
+      updateThumbs();
+      prevBtn.style.display = items.length > 1 ? '' : 'none';
+      nextBtn.style.display = items.length > 1 ? '' : 'none';
+    }
+
+    function open(idx) {
+      if (!items.length) return;
+      show(idx, false);
+      el.classList.add('open');
+      el.setAttribute('aria-hidden', 'false');
+      document.body.style.overflow = 'hidden';
+      if (lenis) lenis.stop();
+    }
+
+    function close() {
+      el.classList.remove('open');
+      el.setAttribute('aria-hidden', 'true');
+      document.body.style.overflow = '';
+      if (lenis) lenis.start();
+    }
+
+    function goTo(idx) { show(idx, true); }
+
+    closeBtn.addEventListener('click', close);
+    backdrop.addEventListener('click', close);
+    prevBtn.addEventListener('click',  () => goTo(current - 1));
+    nextBtn.addEventListener('click',  () => goTo(current + 1));
+
+    document.addEventListener('keydown', e => {
+      if (!el.classList.contains('open')) return;
+      if (e.key === 'ArrowLeft'  || e.key === 'ArrowUp')   { e.preventDefault(); goTo(current - 1); }
+      if (e.key === 'ArrowRight' || e.key === 'ArrowDown')  { e.preventDefault(); goTo(current + 1); }
+      if (e.key === 'Escape') close();
+    });
+
+    let touchX = 0;
+    el.addEventListener('touchstart', e => { touchX = e.touches[0].clientX; }, { passive: true });
+    el.addEventListener('touchend',   e => {
+      const dx = e.changedTouches[0].clientX - touchX;
+      if (Math.abs(dx) > 50) dx < 0 ? goTo(current + 1) : goTo(current - 1);
+    });
+
+    el.addEventListener('wheel', e => {
+      e.preventDefault();
+      e.deltaY > 0 ? goTo(current + 1) : goTo(current - 1);
+    }, { passive: false });
+
+    return { setItems, open, close };
   })();
 
   /* ── 4. INIT SITE ─────────────────────────────────── */
@@ -587,5 +696,6 @@
       if (t && lenis) lenis.scrollTo(t, { offset: -80 });
     })
   );
+
 
 })();
