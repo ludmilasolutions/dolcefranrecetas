@@ -335,12 +335,19 @@
         const card = document.createElement('article');
         card.className = 'pcard';
         card.dataset.anim = ANIMS[i % ANIMS.length];
+        card.dataset.index = i;
         card.innerHTML = `
-          <div class="pcard-img">
+          <div class="pcard-img" data-lb-index="${i}">
             ${imgSrc
               ? `<img src="${imgSrc}" alt="${p.name}" loading="lazy" class="pcard-photo"/>`
               : `<div class="pcard-swatch" style="background:linear-gradient(145deg,#1a0800,#5c2200)"></div>`
             }
+            <div class="pcard-open-hint">
+              <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="15 3 21 3 21 9"/><polyline points="9 21 3 21 3 15"/>
+                <line x1="21" y1="3" x2="14" y2="10"/><line x1="3" y1="21" x2="10" y2="14"/>
+              </svg>
+            </div>
           </div>
           <div class="pcard-body">
             <h3 class="pcard-name">${p.name}</h3>
@@ -373,6 +380,24 @@
                 duration: 1, delay: i * 0.08, ease: 'power3.out' }
             );
           },
+        });
+      });
+
+      /* Registrar imágenes en lightbox */
+      const lbItems = data.map(p => {
+        let imgSrc = p.image_url || '';
+        if (imgSrc && !/^https?:\/\//i.test(imgSrc)) {
+          const { data: urlData } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(imgSrc);
+          imgSrc = urlData?.publicUrl || imgSrc;
+        }
+        return { src: imgSrc, name: p.name, price: p.price };
+      }).filter(x => x.src);
+      lb.setItems(lbItems);
+
+      /* Click en imagen → abrir lightbox */
+      grid.querySelectorAll('[data-lb-index]').forEach(el => {
+        el.addEventListener('click', () => {
+          if (lbItems.length) lb.open(parseInt(el.dataset.lbIndex));
         });
       });
 

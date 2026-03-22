@@ -292,6 +292,43 @@
   <!-- NOTIFICACIÓN -->
   <div id="notif" class="notif" aria-live="polite"></div>
 
+
+  <!-- ══════ LIGHTBOX ══════ -->
+  <div id="lightbox" class="lb" aria-hidden="true" role="dialog" aria-modal="true" aria-label="Visor de imágenes">
+    <div class="lb-backdrop" id="lbBackdrop"></div>
+
+    <!-- Imagen -->
+    <div class="lb-stage">
+      <img id="lbImg" src="" alt="" class="lb-img" draggable="true"/>
+      <div class="lb-caption" id="lbCaption"></div>
+      <div class="lb-price" id="lbPrice"></div>
+    </div>
+
+    <!-- Controles -->
+    <button class="lb-btn lb-close" id="lbClose" aria-label="Cerrar">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/>
+      </svg>
+    </button>
+    <button class="lb-btn lb-prev" id="lbPrev" aria-label="Anterior">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <polyline points="15 18 9 12 15 6"/>
+      </svg>
+    </button>
+    <button class="lb-btn lb-next" id="lbNext" aria-label="Siguiente">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <polyline points="9 18 15 12 9 6"/>
+      </svg>
+    </button>
+
+    <!-- Contador + download hint -->
+    <div class="lb-counter" id="lbCounter">1 / 1</div>
+    <div class="lb-hint">Click derecho → Guardar imagen</div>
+
+    <!-- Thumbnails -->
+    <div class="lb-thumbs" id="lbThumbs"></div>
+  </div>
+
   <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
   <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
