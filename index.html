@@ -3,95 +3,298 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Dolce Fran Pâstissere - El dulce detalle que le falta a tu vida</title>
-  <meta name="description" content="Dolcefran - Pasteleria premium con los mejores productos artesanales">
-  <link rel="icon" href="data:," />
-  <link rel="stylesheet" href="style.css" />
-  <!-- Supabase CDN -->
+  <title>Dolcefran — Pastelería Artesanal Premium · Madrid</title>
+  <meta name="description" content="Dolcefran — Pasteles artesanales de autor elaborados con ingredientes selectos. Madrid, España." />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,300;0,400;0,600;1,300;1,400;1,600&family=Montserrat:wght@200;300;400;500&family=Space+Mono:wght@400;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/style.css" />
   <script src="https://unpkg.com/@supabase/supabase-js@2/dist/umd/supabase.js"></script>
-  <script>
-    function waitForSupabase(callback, attempts = 0) {
-      if (window.supabase && window.supabase.createClient) {
-        callback();
-      } else if (attempts < 50) {
-        setTimeout(() => waitForSupabase(callback, attempts + 1), 100);
-      } else {
-        console.error('Supabase no se cargó');
-      }
-    }
-    waitForSupabase(function() {
-      console.log('Supabase listo');
-    });
-  </script>
 </head>
 <body>
-  <header class="site-header">
-    <div class="container header-inner">
-      <a href="/" class="brand">Dolce Fran<span>Pâstissere</span></a>
-      <nav class="nav-links" aria-label="main navigation">
-        <a href="#catalog">Catálogo</a>
-        <a href="#cart" class="cart-link">
-          Carrito
-          <span id="cart-count" class="cart-count">0</span>
-        </a>
-      </nav>
+
+  <!-- GRAIN OVERLAY -->
+  <div class="grain-overlay" aria-hidden="true"></div>
+
+  <!-- CURSOR -->
+  <div id="cursor-dot" aria-hidden="true"></div>
+  <div id="cursor-ring" aria-hidden="true"></div>
+
+  <!-- ══════ LOADER ══════ -->
+  <div id="loader">
+    <div class="loader-inner">
+      <div class="loader-logo">Dolcefran</div>
+      <div class="loader-bar-wrap">
+        <div class="loader-bar" id="loader-bar"></div>
+      </div>
+      <div class="loader-num" id="loader-num">0%</div>
     </div>
+  </div>
+
+  <!-- ══════ HEADER ══════ -->
+  <header id="header">
+    <a href="#" class="header-logo">Dolcefran</a>
+    <nav class="header-nav">
+      <a href="#productos">Productos</a>
+      <a href="#nosotros">Nosotros</a>
+      <a href="#contacto">Contacto</a>
+    </nav>
+    <button class="header-cart" id="cartBtn" aria-label="Carrito">
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5">
+        <path d="M6 6h15l-1.5 9h-12z"/>
+        <circle cx="9" cy="20" r="1.2"/>
+        <circle cx="18" cy="20" r="1.2"/>
+        <path d="M6 6L5 3H2"/>
+      </svg>
+      <span class="cart-count" id="cartCount">0</span>
+    </button>
   </header>
 
-  <section class="hero" aria-label="hero">
-    <div class="hero-content container">
-      <span class="hero-tagline">Arte Dulcero</span>
-      <h1>Dolce Fran <span class="h1-accent">Pâstissere</span></h1>
-      <p>Delicias artesanales elaboradas con los mejores ingredientes. Cada producto es una obra maestra de sabor y textura.</p>
-      <a href="#catalog" class="btn btn-primary">Ver Catálogo</a>
+
+  <!-- ══════ SCROLL CONTAINER — 700vh ══════ -->
+  <div id="scroll-container">
+    <div class="canvas-wrap">
+      <canvas id="main-canvas"></canvas>
+      <div id="canvas-overlay"></div>
+
+      <!-- ── SECCIÓN HERO (0–16%) ── -->
+      <div class="scroll-section hero-section" id="sec-hero"
+           data-enter="0.0" data-leave="0.17" data-animation="fade-up">
+        <div class="align-left">
+          <div class="hero-text-box">
+            <span class="section-label">Artesanía dulce · Madrid</span>
+            <h1 class="hero-title">Dolce<em>fran</em></h1>
+            <p class="hero-sub">Pasteles de autor para momentos que no se olvidan</p>
+          </div>
+          <div class="scroll-hint">
+            <span class="scroll-line"></span>
+            <span class="scroll-text">scroll</span>
+          </div>
+        </div>
+      </div>
+
+      <!-- ── MARQUEE 1 (visible 5–25%) ── -->
+      <div class="marquee-outer" id="marquee1">
+        <div class="marquee-track">
+          <span>Pasteles Artesanales</span><span class="sep">◆</span>
+          <span>Hechos con Amor</span><span class="sep">◆</span>
+          <span>Ingredientes Premium</span><span class="sep">◆</span>
+          <span>Diseño Exclusivo</span><span class="sep">◆</span>
+          <span>Pasteles Artesanales</span><span class="sep">◆</span>
+          <span>Hechos con Amor</span><span class="sep">◆</span>
+          <span>Ingredientes Premium</span><span class="sep">◆</span>
+          <span>Diseño Exclusivo</span><span class="sep">◆</span>
+        </div>
+      </div>
+
+      <!-- ── SECCIÓN PRODUCTOS (22–40%) ── -->
+      <div class="scroll-section align-left"
+           data-enter="0.22" data-leave="0.40" data-animation="slide-left" id="sec-productos">
+        <div class="text-box">
+          <span class="section-label">Nuestra Selección</span>
+          <h2 class="section-title">Creaciones<br/>Exclusivas</h2>
+          <p class="section-text">Chocolate belga · Red Velvet<br/>Cheesecake japonés · Tiramisú<br/>Fresas frescas · Personalizadas</p>
+          <a href="#productos" class="sec-cta">Ver productos</a>
+        </div>
+      </div>
+
+      <!-- ── SECCIÓN ESTADÍSTICAS (42–60%) ── -->
+      <div class="scroll-section stats-section"
+           data-enter="0.42" data-leave="0.61" data-animation="scale-up" id="sec-stats">
+        <div class="stat-item">
+          <span class="stat-num" data-target="500">0</span>
+          <span class="stat-suffix">+</span>
+          <span class="stat-label">Clientes felices</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="1200">0</span>
+          <span class="stat-suffix">+</span>
+          <span class="stat-label">Pedidos realizados</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="8">0</span>
+          <span class="stat-suffix">+</span>
+          <span class="stat-label">Años de experiencia</span>
+        </div>
+        <div class="stat-item">
+          <span class="stat-num" data-target="35">0</span>
+          <span class="stat-suffix"></span>
+          <span class="stat-label">Recetas exclusivas</span>
+        </div>
+      </div>
+
+      <!-- ── MARQUEE 2 (visible 40–62%) ── -->
+      <div class="marquee-outer marquee-top" id="marquee2">
+        <div class="marquee-track">
+          <span>Chocolate Belga</span><span class="sep">◆</span>
+          <span>Red Velvet</span><span class="sep">◆</span>
+          <span>Tiramisú</span><span class="sep">◆</span>
+          <span>Cheesecake</span><span class="sep">◆</span>
+          <span>Chocolate Belga</span><span class="sep">◆</span>
+          <span>Red Velvet</span><span class="sep">◆</span>
+          <span>Tiramisú</span><span class="sep">◆</span>
+          <span>Cheesecake</span><span class="sep">◆</span>
+        </div>
+      </div>
+
+      <!-- ── SECCIÓN NOSOTROS (63–82%) ── -->
+      <div class="scroll-section align-right"
+           data-enter="0.63" data-leave="0.84" data-animation="slide-right" id="sec-nosotros">
+        <div class="text-box">
+          <span class="section-label">Nuestra Historia</span>
+          <h2 class="section-title">Hecho con<br/>Pasión</h2>
+          <p class="section-text">Cada creación nace del amor<br/>por la pastelería artesanal.<br/>Ingredientes selectos, técnica y alma.</p>
+        </div>
+      </div>
+
     </div>
-    <div class="hero-decoration"></div>
+  </div>
+
+  <!-- ══════ DIVISOR ══════ -->
+  <div class="gold-line" aria-hidden="true"></div>
+
+  <!-- ══════ PRODUCTOS — cargados desde Supabase ══════ -->
+  <section id="productos" class="page-section">
+    <div class="section-header align-left-static" data-anim="slide-left">
+      <span class="section-label">Nuestra Selección</span>
+      <h2 class="section-title">Creaciones<br/>Exclusivas</h2>
+    </div>
+    <div id="products-loading" class="products-loading">
+      <div class="loading-dots"><span></span><span></span><span></span></div>
+    </div>
+    <div class="products-grid" id="products-grid">
+      <!-- Se llena dinámicamente desde Supabase -->
+    </div>
   </section>
 
-  <main class="container" id="catalog" aria-label="catalogo">
-    <h2>Catálogo de productos</h2>
-    <div id="loader" class="loader">Cargando productos...</div>
-    <section id="products" class="grid"></section>
-  </main>
+  <div class="gold-line" aria-hidden="true"></div>
 
-  <aside id="cart" class="cart-sidebar" aria-label="carrito">
-    <div class="cart-header">
-      <h3>Tu Carrito</h3>
-      <button class="cart-close" onclick="document.getElementById('cart').classList.remove('cart-open')">&times;</button>
+  <!-- ══════ NOSOTROS ══════ -->
+  <section id="nosotros" class="page-section about-section">
+    <div class="about-inner" data-anim="rotate-in">
+      <span class="section-label">Nuestra Historia</span>
+      <h2 class="section-title about-title">Hecho con<br/>Pasión</h2>
+      <div class="gold-line-short" aria-hidden="true"></div>
+      <p class="about-text">
+        En <em>Dolcefran</em>, cada creación nace del amor por la pastelería artesanal. Desde nuestros inicios nos comprometimos a usar ingredientes de la más alta calidad, combinando técnicas tradicionales con toques contemporáneos.
+      </p>
+      <p class="about-text">
+        Nuestras recetas se han perfeccionado durante años, pasando de generación en generación, garantizando que cada bocado sea una experiencia única e inolvidable.
+      </p>
+      <p class="about-text">
+        Más de ocho años de dedicación, mil doscientos pedidos realizados, y un solo principio rector: la pasión es la forma más honesta de respeto hacia quien confía en nosotros.
+      </p>
     </div>
-    <div id="cart-items" class="cart-items"></div>
-    <div class="cart-footer">
-      <div class="cart-total">
-        <span>Total:</span>
-        <span class="total-amount">$<span id="cart-total">0.00</span></span>
+  </section>
+
+  <div class="gold-line" aria-hidden="true"></div>
+
+  <!-- ══════ CONTACTO ══════ -->
+  <section id="contacto" class="page-section contact-section">
+    <div class="contact-inner">
+      <div class="contact-left align-left-static" data-anim="slide-left">
+        <span class="section-label">Contacto</span>
+        <h2 class="section-title">Hacé tu<br/>Pedido</h2>
+        <ul class="contact-list">
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M22 16.92v3a2 2 0 0 1-2.18 2 19.79 19.79 0 0 1-8.63-3.07 19.5 19.5 0 0 1-6-6 19.79 19.79 0 0 1-3.07-8.67A2 2 0 0 1 4.11 2h3a2 2 0 0 1 2 1.72c.127.96.361 1.903.7 2.81a2 2 0 0 1-.45 2.11L8.09 9.91a16 16 0 0 0 6 6l1.27-1.27a2 2 0 0 1 2.11-.45c.907.339 1.85.573 2.81.7A2 2 0 0 1 22 16.92z"/></svg>
+            +34 612 345 678
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M4 4h16c1.1 0 2 .9 2 2v12c0 1.1-.9 2-2 2H4c-1.1 0-2-.9-2-2V6c0-1.1.9-2 2-2z"/><polyline points="22,6 12,13 2,6"/></svg>
+            hola@dolcefran.es
+          </li>
+          <li>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+            Calle Gran Vía 42, Madrid
+          </li>
+        </ul>
+        <button class="cta-button" id="sendWA">ENVIAR PEDIDO POR WHATSAPP</button>
       </div>
-      <button id="btn-checkout" class="btn btn-primary">Finalizar Pedido</button>
+      <div class="contact-right" data-anim="slide-right">
+        <div class="cart-panel-inline">
+          <div class="cpi-header">
+            <span class="cpi-title">Tu Pedido</span>
+            <span class="cpi-subtitle">Agregá productos y finalizá tu pedido</span>
+          </div>
+          <div class="cpi-items" id="cartItems">
+            <p class="cart-empty">Tu carrito está vacío</p>
+          </div>
+          <div class="cpi-foot">
+            <div class="cpi-total-row">
+              <span>Total</span>
+              <span id="cartTotal">$ 0</span>
+            </div>
+            <button class="cta-button cta-wa" id="checkoutWA">
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+              FINALIZAR PEDIDO
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
-  </aside>
+  </section>
 
-  <div class="cart-overlay" onclick="document.getElementById('cart').classList.remove('cart-open')"></div>
+  <div class="gold-line" aria-hidden="true"></div>
 
-  <button class="cart-floating-btn" onclick="document.getElementById('cart').classList.add('cart-open')">
-    🛒 <span id="cart-count-float">0</span>
-  </button>
-
-  <footer class="footer">
-    <div class="container">
-      <p class="brand-footer">Dolce Fran<span>Pâstissere</span></p>
-      <div class="footer-social">
-        <a href="https://www.instagram.com/dolcefranrosario_/" target="_blank" rel="noopener" class="social-icon" title="Instagram">
-          <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-            <rect x="2" y="2" width="20" height="20" rx="5" ry="5"></rect>
-            <path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"></path>
-            <line x1="17.5" y1="6.5" x2="17.51" y2="6.5"></line>
-          </svg>
-        </a>
-      </div>
-      <p class="copyright">© <span id="year"></span> - Todos los derechos reservados</p>
-      <p class="footer-credit">Web creada por <a href="https://afmsolutions.com.ar/" target="_blank" rel="noopener">AFM Solutions</a></p>
+  <!-- ══════ FOOTER ══════ -->
+  <footer id="footer">
+    <div class="footer-inner">
+      <span class="footer-logo">Dolcefran</span>
+      <span class="footer-sep">◆</span>
+      <span class="footer-copy">© 2026</span>
+      <span class="footer-sep">◆</span>
+      <span class="footer-location">Madrid, España</span>
+      <span class="footer-sep">◆</span>
+      <a href="admin.html" class="footer-admin-link">Admin</a>
     </div>
   </footer>
 
-  <script src="app.js?v=4"></script>
+  <!-- SVG GRAIN -->
+  <svg class="svg-filter" xmlns="http://www.w3.org/2000/svg">
+    <defs>
+      <filter id="grain-filter" x="0%" y="0%" width="100%" height="100%">
+        <feTurbulence type="fractalNoise" baseFrequency="0.65" numOctaves="3" stitchTiles="stitch"/>
+        <feColorMatrix type="saturate" values="0"/>
+        <feBlend in="SourceGraphic" mode="multiply"/>
+      </filter>
+    </defs>
+  </svg>
+
+
+  <!-- ══════ CHECKOUT MODAL ══════ -->
+  <div id="checkout-modal" class="checkout-modal" aria-hidden="true">
+    <div class="checkout-backdrop" id="checkoutBackdrop"></div>
+    <div class="checkout-box">
+      <button class="checkout-close" id="checkoutClose">
+        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+      </button>
+      <h2 class="checkout-title">Finalizar Pedido</h2>
+
+      <div class="checkout-summary" id="checkoutSummary">
+        <!-- Llenado por JS -->
+      </div>
+
+      <form id="checkout-form" class="checkout-form">
+        <h3 class="checkout-subtitle">Datos de entrega</h3>
+        <input type="text"  id="co-name"    placeholder="Nombre completo" required />
+        <input type="tel"   id="co-phone"   placeholder="Teléfono / WhatsApp" required />
+        <input type="text"  id="co-address" placeholder="Dirección de entrega" required />
+        <textarea           id="co-notes"   placeholder="Notas adicionales (opcional)" rows="2"></textarea>
+        <button type="submit" class="cta-button cta-wa" style="width:100%; justify-content:center; margin-top:.5rem;">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51-.173-.008-.371-.01-.57-.01-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+          ENVIAR POR WHATSAPP
+        </button>
+      </form>
+    </div>
+  </div>
+
+  <!-- NOTIFICACIÓN -->
+  <div id="notif" class="notif" aria-live="polite"></div>
+
+  <script src="https://cdn.jsdelivr.net/npm/lenis@1/dist/lenis.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/gsap.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/gsap@3/dist/ScrollTrigger.min.js"></script>
+  <script src="js/app.js"></script>
 </body>
 </html>
