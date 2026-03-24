@@ -545,6 +545,24 @@ body.cursor-hover #cursor-dot  { transform: translate(-50%,-50%) scale(1.6); }
   font-family: var(--font-mono); font-size: .62rem;
   letter-spacing: .14em; color: rgba(240,237,232,.28);
 }
+.footer-dev {
+  margin-top: 1.5rem; padding-top: 1.5rem;
+  border-top: 1px solid rgba(201,150,90,.08);
+  font-family: var(--font-mono); font-size: .58rem;
+  letter-spacing: .1em; color: rgba(240,237,232,.2);
+  text-align: center;
+  display: flex; align-items: center; justify-content: center; gap: 12px; flex-wrap: wrap;
+}
+.footer-dev a {
+  color: var(--gold); text-decoration: none;
+  transition: color .2s;
+  display: inline-flex; align-items: center; gap: 5px;
+}
+.footer-dev a:hover { color: var(--gold2); }
+
+
+
+
 
 /* ── ANIMACIONES BASE ───────────────────────────────── */
 [data-anim] { opacity: 0; transition: none; }

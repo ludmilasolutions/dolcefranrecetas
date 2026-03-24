@@ -301,18 +301,16 @@
     await loadProducts();
   }
 
-  /* ── 5. LENIS (scroll híbrido) ─────────────────────── */
+  /* ── 5. LENIS ─────────────────────────────────── */
   let lenis;
-  let scrollEnded = false;
   let rafId = null;
 
   function initLenis() {
     lenis = new Lenis({
-      duration: 0.8,
-      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
-      smoothWheel: true,
-      wheelMultiplier: 1.2,
-      touchMultiplier: 1.5,
+      duration: 0,
+      smoothWheel: false,
+      wheelMultiplier: 1,
+      touchMultiplier: 1,
       infinite: false,
       prevent: node => {
         if (node.closest('.fc-items')) return true;
@@ -328,25 +326,7 @@
     }
     rafId = requestAnimationFrame(raf);
 
-    lenis.on('scroll', ({ scroll, limit }) => {
-      if (scrollEnded) return;
-      const progress = scroll / limit;
-      if (progress >= 0.88) {
-        scrollEnded = true;
-        if (rafId) cancelAnimationFrame(rafId);
-        lenis.destroy();
-        lenis = null;
-        const container = document.getElementById('scroll-container');
-        if (container) {
-          const targetY = container.offsetHeight;
-          window.scrollTo({ top: targetY, behavior: 'auto' });
-        }
-      }
-      ScrollTrigger.update();
-    });
-
-    gsap.ticker.lagSmoothing(0);
-    gsap.ticker.add(() => ScrollTrigger.update());
+    lenis.on('scroll', ScrollTrigger.update);
   }
 
   /* ── 6. HEADER ────────────────────────────────────── */
