@@ -365,7 +365,7 @@
       trigger: '#scroll-container',
       start: 'top top', end: 'bottom bottom',
       onUpdate: self => {
-        const progress = Math.min(self.progress / 0.85, 1);
+        const progress = Math.min(self.progress / 0.65, 1);
         const newFrame = Math.round(progress * (FRAMES - 1));
         if (newFrame !== targetFrame) { targetFrame = newFrame; dirty = true; }
       },
@@ -458,7 +458,7 @@
 
   /* ── 11. CONTADOR ─────────────────────────────────── */
   function animCounter(el, target) {
-    const t0 = performance.now(), dur = 2200;
+    const t0 = performance.now(), dur = 1000;
     (function tick(now) {
       const prog  = Math.min((now - t0) / dur, 1);
       const eased = 1 - Math.pow(1 - prog, 3);
