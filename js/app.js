@@ -205,15 +205,15 @@
       show(idx, false);
       el.classList.add('open');
       el.setAttribute('aria-hidden', 'false');
-      document.body.style.overflow = 'hidden';
       if (lenis) lenis.stop();
     }
 
     function close() {
       el.classList.remove('open');
       el.setAttribute('aria-hidden', 'true');
-      document.body.style.overflow = '';
-      if (lenis) lenis.start();
+      // Solo reanudar si el checkout no está abierto
+      const checkoutOpen = document.getElementById('checkout-modal')?.classList.contains('open');
+      if (!checkoutOpen && lenis) lenis.start();
     }
 
     function goTo(idx) { show(idx, true); }
@@ -284,7 +284,15 @@
   /* ── 5. LENIS ─────────────────────────────────────── */
   let lenis;
   function initLenis() {
-    lenis = new Lenis({ lerp: 0.1, smoothWheel: true });
+    lenis = new Lenis({
+      duration: 0.8,
+      easing: t => Math.min(1, 1.001 - Math.pow(2, -10 * t)),
+      smoothWheel: true,
+      wheelMultiplier: 1.2,
+      touchMultiplier: 1.5,
+      infinite: false,
+      prevent: node => node.closest('.fc-items') !== null,
+    });
     lenis.on('scroll', ScrollTrigger.update);
     gsap.ticker.add(t => lenis.raf(t * 1000));
     gsap.ticker.lagSmoothing(0);
@@ -306,8 +314,8 @@
       trigger: '#scroll-container',
       start: 'top top', end: 'bottom bottom',
       onUpdate: self => {
-        const progress  = Math.min(self.progress / 0.85, 1);
-        const newFrame  = Math.round(progress * (FRAMES - 1));
+        const progress = Math.min(self.progress / 0.85, 1);
+        const newFrame = Math.round(progress * (FRAMES - 1));
         if (newFrame !== curFrame) { curFrame = newFrame; dirty = true; }
       },
     });
@@ -541,29 +549,51 @@
     try { cart = JSON.parse(localStorage.getItem('dolcefran_cart') || '[]'); } catch (_) { cart = []; }
   }
 
+  /* ── 13b. CART UI STATE ─────────────────────────── */
+  // Usamos Lenis stop/start en vez de body.overflow para evitar conflictos
+  function lockScroll() {
+    if (lenis) lenis.stop();
+  }
+  function unlockScroll() {
+    // Solo desbloquear si no hay ningún modal abierto
+    const checkoutOpen = document.getElementById('checkout-modal')?.classList.contains('open');
+    const lbOpen = document.getElementById('lightbox')?.classList.contains('open');
+    if (!checkoutOpen && !lbOpen && lenis) lenis.start();
+  }
+
   function addToCart(product) {
     const ex = cart.find(c => c.id === product.id);
     if (ex) { ex.qty += 1; } else { cart.push({ ...product, qty: 1 }); }
     saveCart();
     renderCart();
-    showNotif(`✓ ${product.name} agregado`);
+    // Solo notificación + badge — NO abrir el carrito automáticamente
+    showNotif(`✓ ${product.name} agregado al carrito`);
+    const cartBtn = document.getElementById('cartBtn');
+    if (cartBtn) {
+      cartBtn.classList.remove('bounce');
+      void cartBtn.offsetWidth;
+      cartBtn.classList.add('bounce');
+    }
   }
 
   function renderCart() {
-    const itemsEl  = document.getElementById('cartItems');
-    const totalEl  = document.getElementById('cartTotal');
-    const countEl  = document.getElementById('cartCount');
+    const itemsEl = document.getElementById('cartItems');
+    const totalEl = document.getElementById('cartTotal');
+    const countEl = document.getElementById('cartCount');
 
     const totalQty = cart.reduce((s, x) => s + x.qty, 0);
-    if (countEl) countEl.textContent = totalQty;
+    if (countEl) {
+      countEl.textContent = totalQty;
+      countEl.style.display = totalQty > 0 ? '' : 'none';
+    }
 
     if (!cart.length) {
-      itemsEl.innerHTML = '<p class="cart-empty">Tu carrito está vacío</p>';
-      totalEl.textContent = '$ 0';
+      if (itemsEl) itemsEl.innerHTML = '<p class="cart-empty">Tu carrito está vacío</p>';
+      if (totalEl) totalEl.textContent = '$ 0';
       return;
     }
 
-    itemsEl.innerHTML = cart.map((item, i) => `
+    const html = cart.map((item, i) => `
       <div class="cart-item">
         ${item.img ? `<img src="${item.img}" alt="${item.name}" class="cart-item-img"/>` : ''}
         <div class="cart-item-info">
@@ -578,45 +608,70 @@
         <button class="cart-item-rm" data-i="${i}">×</button>
       </div>`).join('');
 
-    const total = cart.reduce((s, x) => s + x.price * x.qty, 0);
-    totalEl.textContent = '$ ' + formatMoney(total);
+    if (itemsEl) itemsEl.innerHTML = html;
 
-    /* Listeners botones qty */
-    itemsEl.querySelectorAll('button[data-action]').forEach(btn => {
-      btn.addEventListener('click', () => {
-        const i   = +btn.dataset.i;
-        const act = btn.dataset.action;
-        if (act === 'inc') { cart[i].qty += 1; }
-        else { cart[i].qty -= 1; if (cart[i].qty < 1) cart.splice(i, 1); }
-        saveCart(); renderCart();
+    const total = cart.reduce((s, x) => s + x.price * x.qty, 0);
+    if (totalEl) totalEl.textContent = '$ ' + formatMoney(total);
+
+    if (itemsEl) {
+      itemsEl.querySelectorAll('button[data-action]').forEach(btn => {
+        btn.addEventListener('click', () => {
+          const i   = +btn.dataset.i;
+          const act = btn.dataset.action;
+          if (act === 'inc') { cart[i].qty += 1; }
+          else { cart[i].qty -= 1; if (cart[i].qty < 1) cart.splice(i, 1); }
+          saveCart(); renderCart();
+        });
       });
-    });
-    itemsEl.querySelectorAll('.cart-item-rm').forEach(btn => {
-      btn.addEventListener('click', () => {
-        cart.splice(+btn.dataset.i, 1);
-        saveCart(); renderCart();
-        showNotif('Producto eliminado');
+      itemsEl.querySelectorAll('.cart-item-rm').forEach(btn => {
+        btn.addEventListener('click', () => {
+          cart.splice(+btn.dataset.i, 1);
+          saveCart(); renderCart();
+          showNotif('Producto eliminado');
+        });
       });
-    });
+    }
+  }
+
+  function openFloatingCart() {
+    const fc = document.getElementById('floating-cart');
+    if (!fc) return;
+    fc.classList.add('open');
+    fc.setAttribute('aria-hidden', 'false');
+    // NO bloquear scroll al abrir carrito — permite seguir navegando
+  }
+
+  function closeFloatingCart() {
+    const fc = document.getElementById('floating-cart');
+    if (!fc) return;
+    fc.classList.remove('open');
+    fc.setAttribute('aria-hidden', 'true');
   }
 
   function initCart() {
     loadCart();
     renderCart();
-    document.getElementById('cartBtn').addEventListener('click', () => {
-      const t = document.getElementById('contacto');
-      if (t && lenis) lenis.scrollTo(t, { offset: -80 });
+    document.getElementById('cartBtn')?.addEventListener('click', openFloatingCart);
+    document.getElementById('fcClose')?.addEventListener('click', closeFloatingCart);
+    document.getElementById('fcBackdrop')?.addEventListener('click', closeFloatingCart);
+    // "Enviar pedido" en sección contacto → abre checkout directo
+    document.getElementById('sendWA')?.addEventListener('click', () => {
+      closeFloatingCart();
+      openCheckout();
     });
-    document.getElementById('sendWA')?.addEventListener('click', openCheckout);
   }
 
   /* ── 14. CHECKOUT ─────────────────────────────────── */
   function openCheckout() {
     if (!cart.length) { showNotif('Tu carrito está vacío'); return; }
 
-    const modal    = document.getElementById('checkout-modal');
-    const summary  = document.getElementById('checkoutSummary');
-    const total    = cart.reduce((s, x) => s + x.price * x.qty, 0);
+    const modal   = document.getElementById('checkout-modal');
+    const summary = document.getElementById('checkoutSummary');
+    const form    = document.getElementById('checkout-form');
+    const total   = cart.reduce((s, x) => s + x.price * x.qty, 0);
+
+    // Limpiar formulario anterior
+    if (form) form.reset();
 
     summary.innerHTML = `
       <div class="co-items">
@@ -629,16 +684,25 @@
       </div>
       <div class="co-total"><span>Total</span><span>$ ${formatMoney(total)}</span></div>`;
 
+    // Cerrar carrito flotante primero para que no compitan
+    closeFloatingCart();
+
     modal.classList.add('open');
-    document.body.style.overflow = 'hidden';
+    // Usar Lenis.stop() en vez de body.overflow para no romper el layout
+    lockScroll();
+
+    // Scroll al tope del modal para que se vea el formulario
+    const box = modal.querySelector('.checkout-box');
+    if (box) box.scrollTop = 0;
   }
 
   function closeCheckout() {
-    document.getElementById('checkout-modal').classList.remove('open');
-    document.body.style.overflow = '';
+    document.getElementById('checkout-modal')?.classList.remove('open');
+    unlockScroll();
   }
 
   function initCheckout() {
+
     document.getElementById('checkoutWA')?.addEventListener('click', openCheckout);
     document.getElementById('checkoutClose')?.addEventListener('click', closeCheckout);
     document.getElementById('checkoutBackdrop')?.addEventListener('click', closeCheckout);
@@ -696,6 +760,18 @@
       if (t && lenis) lenis.scrollTo(t, { offset: -80 });
     })
   );
+
+  /* "Ver productos" button inside scroll sections */
+  document.addEventListener('click', e => {
+    const btn = e.target.closest('.sec-cta');
+    if (!btn) return;
+    e.preventDefault();
+    const href = btn.getAttribute('href');
+    if (!href) return;
+    const target = document.querySelector(href);
+    if (target && lenis) lenis.scrollTo(target, { offset: -80 });
+    else if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+  });
 
 
 })();
