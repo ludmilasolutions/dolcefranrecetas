@@ -59,7 +59,8 @@
   const SCALE   = 0.87;
   const imgs    = new Array(FRAMES);
   let   loaded  = 0;
-  let   curFrame = 0;
+  let   targetFrame = 0;
+  let   displayFrame = 0;
   let   dirty   = true;
   let   canvasW, canvasH, dpr;
 
@@ -122,7 +123,8 @@
 
   /* ── 3. RENDER RAF ────────────────────────────────── */
   function drawFrame() {
-    const img = imgs[curFrame];
+    const fi = Math.round(displayFrame);
+    const img = imgs[fi];
     if (!img || !img.complete || !img.naturalWidth) return;
     ctx.fillStyle = '#050302';
     ctx.fillRect(0, 0, canvasW, canvasH);
@@ -133,7 +135,16 @@
                   sx, sy, img.naturalWidth * r, img.naturalHeight * r);
   }
   (function renderLoop() {
-    if (dirty) { drawFrame(); dirty = false; }
+    const diff = targetFrame - displayFrame;
+    if (Math.abs(diff) > 0.01) {
+      displayFrame += diff * 0.08;
+      dirty = true;
+    } else if (dirty) {
+      displayFrame = targetFrame;
+      dirty = true;
+    }
+    if (dirty) drawFrame();
+    dirty = false;
     requestAnimationFrame(renderLoop);
   })();
 
@@ -143,6 +154,7 @@
     const imgEl     = document.getElementById('lbImg');
     const capEl     = document.getElementById('lbCaption');
     const priceEl   = document.getElementById('lbPrice');
+    const addBtn    = document.getElementById('lbAddBtn');
     const prevBtn   = document.getElementById('lbPrev');
     const nextBtn   = document.getElementById('lbNext');
     const closeBtn  = document.getElementById('lbClose');
@@ -190,7 +202,7 @@
       } else {
         imgEl.src = item.src; imgEl.alt = item.name;
       }
-      capEl.textContent   = item.name;
+      capEl.innerHTML   = item.name + (item.description ? `<span class="lb-desc">${item.description}</span>` : '');
       priceEl.textContent = item.price
         ? '$ ' + Number(item.price).toLocaleString('es-AR', { minimumFractionDigits: 2 })
         : '';
@@ -222,6 +234,14 @@
     backdrop.addEventListener('click', close);
     prevBtn.addEventListener('click',  () => goTo(current - 1));
     nextBtn.addEventListener('click',  () => goTo(current + 1));
+    addBtn.addEventListener('click',  () => {
+      const item = items[current];
+      if (item && item.id) {
+        addToCart({ id: item.id, name: item.name, price: item.price, img: item.src });
+        addBtn.style.transform = 'scale(0.95)';
+        setTimeout(() => addBtn.style.transform = '', 200);
+      }
+    });
 
     document.addEventListener('keydown', e => {
       if (!el.classList.contains('open')) return;
@@ -281,8 +301,11 @@
     await loadProducts();
   }
 
-  /* ── 5. LENIS ─────────────────────────────────────── */
+  /* ── 5. LENIS (scroll híbrido) ─────────────────────── */
   let lenis;
+  let scrollEnded = false;
+  let rafId = null;
+
   function initLenis() {
     lenis = new Lenis({
       duration: 0.8,
@@ -291,11 +314,39 @@
       wheelMultiplier: 1.2,
       touchMultiplier: 1.5,
       infinite: false,
-      prevent: node => node.closest('.fc-items') !== null,
+      prevent: node => {
+        if (node.closest('.fc-items')) return true;
+        if (node.closest('.checkout-box')) return true;
+        return false;
+      },
     });
-    lenis.on('scroll', ScrollTrigger.update);
-    gsap.ticker.add(t => lenis.raf(t * 1000));
+
+    function raf(time) {
+      if (!lenis) return;
+      lenis.raf(time);
+      rafId = requestAnimationFrame(raf);
+    }
+    rafId = requestAnimationFrame(raf);
+
+    lenis.on('scroll', ({ scroll, limit }) => {
+      if (scrollEnded) return;
+      const progress = scroll / limit;
+      if (progress >= 0.88) {
+        scrollEnded = true;
+        if (rafId) cancelAnimationFrame(rafId);
+        lenis.destroy();
+        lenis = null;
+        const container = document.getElementById('scroll-container');
+        if (container) {
+          const targetY = container.offsetHeight;
+          window.scrollTo({ top: targetY, behavior: 'auto' });
+        }
+      }
+      ScrollTrigger.update();
+    });
+
     gsap.ticker.lagSmoothing(0);
+    gsap.ticker.add(() => ScrollTrigger.update());
   }
 
   /* ── 6. HEADER ────────────────────────────────────── */
@@ -316,7 +367,7 @@
       onUpdate: self => {
         const progress = Math.min(self.progress / 0.85, 1);
         const newFrame = Math.round(progress * (FRAMES - 1));
-        if (newFrame !== curFrame) { curFrame = newFrame; dirty = true; }
+        if (newFrame !== targetFrame) { targetFrame = newFrame; dirty = true; }
       },
     });
   }
@@ -507,7 +558,7 @@
           const { data: urlData } = sb.storage.from(STORAGE_BUCKET).getPublicUrl(imgSrc);
           imgSrc = urlData?.publicUrl || imgSrc;
         }
-        return { src: imgSrc, name: p.name, price: p.price };
+        return { id: p.id, src: imgSrc, name: p.name, price: p.price, description: p.description || '' };
       }).filter(x => x.src);
       lb.setItems(lbItems);
 

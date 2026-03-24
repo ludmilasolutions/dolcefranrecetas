@@ -196,13 +196,13 @@
       <h2 class="section-title about-title">Hecho con<br/>el Corazón</h2>
       <div class="gold-line-short" aria-hidden="true"></div>
       <p class="about-text">
-        En <em>Dolcefran</em>, cada creación nace del amor por la pastelería artesanal. Desde nuestros inicios nos comprometimos a usar ingredientes de la más alta calidad, combinando técnicas tradicionales con toques contemporáneos.
+        En Dolcefran, cada creación nace del amor por la pastelería artesanal. Desde nuestros inicios nos comprometimos a usar ingredientes de la más alta calidad, combinando técnicas tradicionales con toques contemporáneos.
       </p>
       <p class="about-text">
-        Nuestras recetas se han perfeccionado durante años, pasando de generación en generación, garantizando que cada bocado sea una experiencia única e inolvidable.
+        Detrás de cada producto hay una historia de dedicación, esfuerzo y mucho amor por lo que hacemos, garantizando que cada bocado sea una experiencia única e inolvidable.
       </p>
-      <p class="about-text">
-        Mil doscientos pedidos realizados, y un solo principio rector: el amor es la forma más honesta de respeto hacia quien confía en nosotros.
+      <p class="about-text about-text-italic">
+        El amor es la forma más honesta de respeto hacia quien confía en nosotros.
       </p>
     </div>
   </section>
@@ -244,8 +244,6 @@
       <span class="footer-copy">© 2026</span>
       <span class="footer-sep">◆</span>
       <span class="footer-location">Rosario, Argentina</span>
-      <span class="footer-sep">◆</span>
-      <a href="admin.html" class="footer-admin-link">Admin</a>
     </div>
   </footer>
 
@@ -298,9 +296,15 @@
 
     <!-- Imagen -->
     <div class="lb-stage">
-      <img id="lbImg" src="" alt="" class="lb-img" draggable="true"/>
+      <img id="lbImg" src="" alt="" class="lb-img" draggable="false"/>
       <div class="lb-caption" id="lbCaption"></div>
       <div class="lb-price" id="lbPrice"></div>
+      <button class="lb-add-btn cta-button" id="lbAddBtn">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+          <line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/>
+        </svg>
+        AGREGAR AL CARRITO
+      </button>
     </div>
 
     <!-- Controles -->
@@ -320,9 +324,8 @@
       </svg>
     </button>
 
-    <!-- Contador + download hint -->
+    <!-- Contador -->
     <div class="lb-counter" id="lbCounter">1 / 1</div>
-    <div class="lb-hint">Click derecho → Guardar imagen</div>
 
     <!-- Thumbnails -->
     <div class="lb-thumbs" id="lbThumbs"></div>
